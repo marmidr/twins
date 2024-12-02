@@ -417,7 +417,7 @@ void tokenize(StringBuff &cmd, Argv &argv)
     }
 }
 
-const Cmd* find_cmd_handler(const Cmd* pCommands, Argv &argv)
+const Cmd* findCmdHandler(const Cmd* pCommands, Argv &argv)
 {
     const Cmd* p_dflt = nullptr;
 
@@ -550,7 +550,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
         g_cs.cmdQue.read();
         return true;
     }
-    else if (const auto *p_cmd = find_cmd_handler(pCommands, argv))
+    else if (const auto *p_cmd = findCmdHandler(pCommands, argv))
     {
         p_cmd->handler(argv);
         found = true;
@@ -580,7 +580,7 @@ bool execLine(const char *cmdline, const Cmd* pCommands)
     tokenize(cmd, argv);
     bool found = false;
 
-    if (const auto *p_cmd = find_cmd_handler(pCommands, argv))
+    if (const auto *p_cmd = findCmdHandler(pCommands, argv))
     {
         found = true;
         p_cmd->handler(argv);

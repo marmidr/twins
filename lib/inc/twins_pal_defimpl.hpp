@@ -1,5 +1,5 @@
 /******************************************************************************
- * @brief   TWins - string class for our needs
+ * @brief   TWins - default implementation of platform abstraction layer
  * @author  Mariusz Midor
  *          https://bitbucket.org/marmidr/twins
  *          https://github.com/marmidr/twins
@@ -32,7 +32,7 @@
 namespace twins
 {
 
-struct DefaultPAL : twins::IPal
+struct DefaultPAL : public twins::IPal
 {
     int writeChar(char c, int16_t repeat) override
     {
@@ -119,6 +119,7 @@ struct DefaultPAL : twins::IPal
             free(ptr);
         }
     #else
+        (void)ptr;
         assert(!"memFree() must be implemented");
     #endif
     }
@@ -135,6 +136,8 @@ struct DefaultPAL : twins::IPal
         //*/
 
         //usleep(ms * 1000);
+    #else
+        (void)ms;
     #endif
     }
 
