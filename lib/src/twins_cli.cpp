@@ -22,6 +22,8 @@
 # define TWINS_CLI_MAXHIST      20
 #endif
 
+#define CRLF                    "\r\n"
+
 static_assert(TWINS_CLI_MAXCMDLEN > 5);
 static_assert(TWINS_CLI_MAXHIST > 0);
 
@@ -306,8 +308,16 @@ void printHelp(Argv &argv, const Cmd* pCommands)
 
     if (!pSubCmdHelp)
     {
-        writeStr(ESC_BOLD "help" ESC_NORMAL " <cmd>" "\r\n" "    this help" "\r\n");
-        writeStr(ESC_BOLD "hist" ESC_NORMAL "\r\n" "    commands history" "\r\n");
+        writeStr(
+            ESC_BOLD "help" ESC_NORMAL
+            " <cmd>" CRLF
+            "    this help" CRLF
+        );
+        writeStr(
+            ESC_BOLD "hist" ESC_NORMAL CRLF
+            "           commands history" CRLF
+            "    --clr  clear the history" CRLF
+        );
     }
 
     while (pCommands->name)
@@ -329,7 +339,7 @@ void printHelp(Argv &argv, const Cmd* pCommands)
             writeStr(pCommands->name);
             writeStr(ESC_NORMAL " ");
             writeStr(pCommands->help);
-            writeStr("\r\n");
+            writeStr(CRLF);
             flushBuffer();
 
             if (pSubCmdHelp)
@@ -345,7 +355,7 @@ void printHelp(Argv &argv, const Cmd* pCommands)
 
     if (pSubCmdHelp && !subCmdFound)
     {
-        writeStrFmt("command '%s' not found" "\r\n", pSubCmdHelp);
+        writeStrFmt("command '%s' not found" CRLF, pSubCmdHelp);
     }
 }
 
@@ -353,7 +363,7 @@ void printHistory()
 {
     int i = 1;
     for (const auto &s : g_cs.history)
-        writeStrFmt("%2d. %s\r\n", i++, s.cstr());
+        writeStrFmt("%2d. %s" CRLF, i++, s.cstr());
     flushBuffer();
 }
 
@@ -412,7 +422,7 @@ void tokenize(StringBuff &cmd, Argv &argv)
         writeStr(ESC_ITALICS_ON ESC_FG_BLACK_INTENSE "Command: ");
         for (const char *a : argv)
             writeStrFmt("\'%s\' ", a);
-        writeStr(ESC_ITALICS_OFF ESC_FG_DEFAULT "\r\n");
+        writeStr(ESC_ITALICS_OFF ESC_FG_DEFAULT CRLF);
         flushBuffer();
     }
 }
@@ -464,7 +474,7 @@ const Cmd* findCmdHandler(const Cmd* pCommands, Argv &argv)
 
 void prompt(bool newLn)
 {
-    if (newLn) writeStr("\r\n");
+    if (newLn) writeStr(CRLF);
     writeStr(ESC_FG_GREEN_INTENSE "> " ESC_FG_WHITE_INTENSE);
     pPAL->promptPrinted();
 }
@@ -500,9 +510,9 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
             if (cmd == g_cs.password)
             {
                 g_cs.passwordMode  = false;
-                // writeStr("\r\n");
+                // writeStr(CRLF);
                 writeStr(ESC_FG_GREEN_INTENSE);
-                writeStr("Access granted." "\r\n");
+                writeStr("Access granted." CRLF);
                 writeStr(ESC_FG_DEFAULT);
                 writeStr("CLI interface ready; type 'help' for available commands.");
                 prompt(true);
@@ -512,7 +522,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
             }
             else
             {
-                // writeStr("\r\n");
+                // writeStr(CRLF);
                 writeStr(ESC_FG_RED_INTENSE);
                 writeStr("Incorrect password, access denied.");
                 writeStr(ESC_FG_DEFAULT);
@@ -521,15 +531,6 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
                 g_cs.cmdQue.read();
                 return true;
             }
-        }
-
-        if (cmd == "hist")
-        {
-            printHistory();
-            prompt(false);
-            flushBuffer();
-            g_cs.cmdQue.read();
-            return true;
         }
     }
 
@@ -541,6 +542,29 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
     {
         g_cs.overrideHandler(argv);
         found = true;
+    }
+    else if (argv.size() > 0 && streq(argv[0], "hist"))
+    {
+        if (argv.size() > 1)
+        {
+            if (streq(argv[1], "--clr"))
+            {
+                g_cs.history.clear();
+                g_cs.historyIdx = 0;
+            }
+            else
+            {
+                writeStr("unknown argument" CRLF);
+            }
+        }
+        else
+        {
+            printHistory();
+            prompt(false);
+            flushBuffer();
+            g_cs.cmdQue.read();
+            return true;
+        }
     }
     else if (argv.size() > 0 && streq(argv[0], "help"))
     {
@@ -560,7 +584,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
     else
     {
         if (lastCommandSet)
-            writeStr("unknown command - type 'help' for available commands" "\r\n");
+            writeStr("unknown command - type 'help' for available commands" CRLF);
     }
 
     if (lastCommandSet)
@@ -587,7 +611,7 @@ bool execLine(const char *cmdline, const Cmd* pCommands)
     }
     else
     {
-        writeStr("unknown command" "\r\n");
+        writeStr("unknown command" CRLF);
     }
 
     prompt(false);
