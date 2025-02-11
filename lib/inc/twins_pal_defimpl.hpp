@@ -1,17 +1,11 @@
 /******************************************************************************
- * @brief   TWins - string class for our needs
+ * @brief   TWins - default implementation of platform abstraction layer
  * @author  Mariusz Midor
  *          https://bitbucket.org/marmidr/twins
  *          https://github.com/marmidr/twins
  *****************************************************************************/
 
 #pragma once
-
-#if defined __linux__ || defined __CYGWIN__ || defined __MSYS__
-# define TWINS_ENV_LINUX_LIKE   1
-#else
-# define TWINS_ENV_LINUX_LIKE   0
-#endif
 
 #ifndef TWINS_PAL_FULLIMPL
 # define TWINS_PAL_FULLIMPL     1
@@ -38,7 +32,7 @@
 namespace twins
 {
 
-struct DefaultPAL : twins::IPal
+struct DefaultPAL : public twins::IPal
 {
     int writeChar(char c, int16_t repeat) override
     {
@@ -89,7 +83,7 @@ struct DefaultPAL : twins::IPal
     #endif
     }
 
-    void setLogging(bool on) override {}
+    void setLogging(bool /* on */) override {}
 
     void promptPrinted() override {}
 
@@ -125,6 +119,7 @@ struct DefaultPAL : twins::IPal
             free(ptr);
         }
     #else
+        (void)ptr;
         assert(!"memFree() must be implemented");
     #endif
     }
@@ -141,6 +136,8 @@ struct DefaultPAL : twins::IPal
         //*/
 
         //usleep(ms * 1000);
+    #else
+        (void)ms;
     #endif
     }
 
@@ -177,9 +174,12 @@ struct DefaultPAL : twins::IPal
         return true;
     }
 
-    void unlock() override
-    {
-    }
+    void unlock() override {}
+
+
+    void wgtDrawBegin(const void */* pWgt */) override {}
+
+    void wgtDrawEnd(const void */* pWgt */) override {}
 
 protected:
     // called before PAL is unregistered
@@ -198,4 +198,4 @@ public:
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins

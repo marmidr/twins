@@ -39,6 +39,8 @@ struct StubPAL : twins::IPal
     uint32_t getTimeDiff(uint32_t) override { return 0; }
     bool lock(bool) override { return true; }
     void unlock() override {}
+    void wgtDrawBegin(const void *) override {}
+    void wgtDrawEnd(const void *) override {}
 };
 
 static StubPAL stubPal;
@@ -96,7 +98,7 @@ namespace cli
 {
 extern void init(void);
 extern void deInit(void);
-}
+} // cli
 
 void init(IPal *pal)
 {
@@ -505,4 +507,4 @@ void resetAttr()
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins

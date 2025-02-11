@@ -1097,7 +1097,7 @@ static bool processKey(CallCtx &ctx, const KeyCode &kc)
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-static void processMouse_TextEdit(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_TextEdit(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     if (kc.mouse.btn == MouseBtn::ButtonLeft)
     {
@@ -1105,7 +1105,7 @@ static void processMouse_TextEdit(CallCtx &ctx, const Widget *pWgt, const Rect &
     }
 }
 
-static void processMouse_CheckBox(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_CheckBox(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     if (kc.mouse.btn == MouseBtn::ButtonLeft)
     {
@@ -1115,7 +1115,7 @@ static void processMouse_CheckBox(CallCtx &ctx, const Widget *pWgt, const Rect &
     }
 }
 
-static void processMouse_Radio(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_Radio(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     if (kc.mouse.btn == MouseBtn::ButtonLeft)
     {
@@ -1125,7 +1125,7 @@ static void processMouse_Radio(CallCtx &ctx, const Widget *pWgt, const Rect &wgt
     }
 }
 
-static void processMouse_Button(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_Button(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     // pointer may change between onButtonUp and onButtonClick, so remember it
     auto *p_wstate = ctx.pState;
@@ -1325,12 +1325,12 @@ static void processMouse_ComboBox(CallCtx &ctx, const Widget *pWgt, const Rect &
     }
 }
 
-static void processMouse_CustomWgt(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_CustomWgt(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     ctx.pState->onCustomWidgetInputEvt(pWgt, kc);
 }
 
-static void processMouse_TextBox(CallCtx &ctx, const Widget *pWgt, const Rect &wgtRect, const KeyCode &kc)
+static void processMouse_TextBox(CallCtx &ctx, const Widget *pWgt, const Rect &/* wgtRect */, const KeyCode &kc)
 {
     changeFocusTo(ctx, pWgt->id);
 
@@ -1694,8 +1694,10 @@ void markButtonDown(const Widget *pBtn, bool isDown)
     }
 }
 
+// -----------------------------------------------------------------------------
+
 } // wgt
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins

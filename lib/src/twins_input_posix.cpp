@@ -9,6 +9,8 @@
 #include "twins_input_posix.hpp"
 #include "twins_common.hpp"
 
+#if TWINS_ENV_LINUX_LIKE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -121,4 +123,6 @@ const char* inputPosixRead(bool &quitRequested)
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins
+
+#endif // TWINS_ENV_LINUX_LIKE

@@ -12,7 +12,7 @@ option(TWINS_USE_LIGHTWEIGHT_CMD "Use void(*)() for twins::cli::Cmd instead of s
 
 set(TARGETNAME twins)
 
-add_library(${TARGETNAME}
+add_library(${TARGETNAME} STATIC
     src/twins.cpp
     src/twins_colors.cpp
     src/twins_widget.cpp
@@ -42,32 +42,32 @@ target_include_directories(${TARGETNAME}
 # endif()
 
 if (TWINS_USE_FASTFILL)
-    target_compile_definitions(${TARGETNAME} PRIVATE -DTWINS_FAST_FILL=1)
+    target_compile_definitions(${TARGETNAME} PRIVATE TWINS_FAST_FILL=1)
 else()
-    target_compile_definitions(${TARGETNAME} PRIVATE -DTWINS_FAST_FILL=0)
+    target_compile_definitions(${TARGETNAME} PRIVATE TWINS_FAST_FILL=0)
 endif()
 
 if (TWINS_PAL_FULLIMPL)
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_PAL_FULLIMPL=1)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_PAL_FULLIMPL=1)
 else()
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_PAL_FULLIMPL=0)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_PAL_FULLIMPL=0)
 endif()
 
 if (TWINS_USE_PRECISE_TIMESTAMP)
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_PRECISE_TIMESTAMP=1)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_PRECISE_TIMESTAMP=1)
 else()
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_PRECISE_TIMESTAMP=0)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_PRECISE_TIMESTAMP=0)
 endif()
 
 if (TWINS_USE_LIGHTWEIGHT_CMD)
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_CLI_LIGHTWEIGHT_CMD=1)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_CLI_LIGHTWEIGHT_CMD=1)
 else()
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_CLI_LIGHTWEIGHT_CMD=0)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_CLI_LIGHTWEIGHT_CMD=0)
 endif()
 
 if (NOT "${TWINS_THEME_DIR}" STREQUAL "")
     target_include_directories(${TARGETNAME} PUBLIC ${TWINS_THEME_DIR})
-    target_compile_definitions(${TARGETNAME} PUBLIC -DTWINS_THEMES=1)
+    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_THEMES=1)
     message(STATUS "TWins themes enabled")
 endif()
 
@@ -101,6 +101,4 @@ if (TWINS_BUILD_UT)
 
     # enable coverage only for source files
     target_compile_options(${TARGETNAME} PRIVATE --coverage)
-
-    add_subdirectory(tests)
 endif()

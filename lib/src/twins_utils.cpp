@@ -287,4 +287,4 @@ bool numEditInputEvt(const twins::KeyCode &kc, twins::String &str, int16_t &curs
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins::util

@@ -18,6 +18,10 @@ template <class T>
 class Vector;
 
 /** @brief Window state and event handler */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 class IWindowState
 {
 public:
@@ -74,5 +78,7 @@ public:
 protected:
     virtual void invalidateImpl(const twins::WID *pId, uint16_t count, bool instantly = false) {}
 };
+
+#pragma GCC diagnostic pop // ignored "-Wunused-parameters"
 
 // -----------------------------------------------------------------------------

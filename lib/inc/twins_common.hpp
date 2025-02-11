@@ -6,13 +6,18 @@
  *****************************************************************************/
 
 #pragma once
+
 #include <stdint.h>
 #include <stdarg.h>
 
 // -----------------------------------------------------------------------------
 
-namespace twins
-{
+#if defined __linux__ || defined __CYGWIN__ || defined __MSYS__
+# define TWINS_ENV_LINUX_LIKE   1
+#else
+# define TWINS_ENV_LINUX_LIKE   0
+#endif
+
 
 #ifndef MIN
 # define MIN(x, y)              (((x) < (y)) ? (x) : (y))
@@ -30,7 +35,12 @@ namespace twins
 # define BIT(n)                  (1 << (n))
 #endif
 
-#define INRANGE(val, min, max)  (((val) >= (min)) && ((val) <= (max)))
+#ifndef INRANGE
+# define INRANGE(val, min, max)  (((val) >= (min)) && ((val) <= (max)))
+#endif
+
+namespace twins
+{
 
 // forward decl
 class String;
@@ -40,7 +50,7 @@ class String;
  * @brief Template returning length of array of type T
  */
 template<unsigned N, typename T>
-unsigned arrSize(const T (&arr)[N]) { return N; }
+unsigned arrSize(const T (&)[N]) { return N; }
 
 
 /**
@@ -100,8 +110,12 @@ struct IPal
     virtual uint16_t getLogsRow() = 0;
     virtual uint32_t getTimeStamp() = 0;
     virtual uint32_t getTimeDiff(uint32_t timestamp) = 0;
+    //
     virtual bool lock(bool wait = true) = 0;
     virtual void unlock() = 0;
+    //
+    virtual void wgtDrawBegin(const void *pWgt) = 0;
+    virtual void wgtDrawEnd(const void *pWgt) = 0;
 };
 
 
@@ -258,4 +272,4 @@ struct NonCopyable
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

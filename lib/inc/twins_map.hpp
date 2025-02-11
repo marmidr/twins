@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 #pragma once
+
 #include "twins_common.hpp"
 #include "twins_vector.hpp"
 #include "twins_hash.hpp"
@@ -286,4 +287,4 @@ private:
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

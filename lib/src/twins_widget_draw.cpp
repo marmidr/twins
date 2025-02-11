@@ -960,8 +960,10 @@ static void drawWidgetInternal(CallCtx &ctx, const Widget *pWgt)
     if (!ctx.pState->isVisible(pWgt))
         return;
 
+    pPAL->wgtDrawBegin(pWgt);
     bool en = isEnabled(ctx, pWgt);
-    if (!en) pushAttr(FontAttrib::Faint);
+    if (!en)
+        pushAttr(FontAttrib::Faint);
 
     switch (pWgt->type)
     {
@@ -988,6 +990,8 @@ static void drawWidgetInternal(CallCtx &ctx, const Widget *pWgt)
         popAttr();
 
     flushBuffer();
+    pPAL->wgtDrawEnd(pWgt);
+
 }
 
 // -----------------------------------------------------------------------------
@@ -1036,4 +1040,4 @@ void drawWidgets(const Widget *pWindowWidgets, const WID *pWidgetIds, uint16_t c
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins

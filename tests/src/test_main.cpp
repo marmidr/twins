@@ -16,8 +16,8 @@
 namespace twins
 {
 
-const char* encodeClTheme(ColorFG cl)  { return ""; }
-const char* encodeClTheme(ColorBG cl)  { return ""; }
+const char* encodeClTheme(ColorFG /* cl */)  { return ""; }
+const char* encodeClTheme(ColorBG /* cl */)  { return ""; }
 ColorFG intensifyClTheme(ColorFG cl) { return cl; }
 ColorBG intensifyClTheme(ColorBG cl) { return cl; }
 

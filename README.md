@@ -27,56 +27,55 @@ Implementation is based on examples:
 
 ## Primary goals
 
-- text properties
-    - [x] foreground and background color codes
-    - [x] attributes (bold, inversion)
-- operations
-    - [x] clear screen
-    - [x] go to home
-    - [x] go to location
-- reading input
-    - [x] regular characters (a..z)
-    - [x] control codes (Up/Down, Del, Ctrl, Home, ...)
-- [x] buffered terminal output
-- [x] platform abstraction layer (PAL) to ease porting
-- [ ] make it compile in clang
-- [x] command line interface with history (CLI)
+* text properties
+  * [x] foreground and background color codes
+  * [x] attributes (bold, inversion)
+* operations
+  * [x] clear screen
+  * [x] go to home
+  * [x] go to location
+* reading input
+  * [x] regular characters (a..z)
+  * [x] control codes (Up/Down, Del, Ctrl, Home, ...)
+* [x] buffered terminal output
+* [x] platform abstraction layer (PAL) to ease porting
+* [ ] make it compile in clang
+* [x] command line interface with history (CLI)
 
 ## Secondary goals
 
-- widgets (controls) to implement
-    - [x] window
-    - [x] panel
-    - [x] static label / led
-    - [x] check box
-    - [x] edit field (text/number)
-    - [x] radio button
-    - [x] page control
-    - [x] progress bar
-    - [x] list box
-    - [x] combo box
-    - [x] scrollable text box
-    - [x] custom widget base
-    - [ ] scrollbar
-    - [ ] horizontal page control
-    - [x] popup windows
-    - [x] layers - to control visibility of groups of widgets
-    - [ ] password input
-- navigation
-    - [x] widgets navigation by Tab/Esc key
-    - [x] render focused widget state
-    - [x] blinking cursor instead of inversed colors
-    - [x] select widget by mouse
-- notifications
-    - [x] notify event per widget type (button clicked, checkbox toggled)
-- [x] color theme for window
-- [x] keyboard handler returns if key was handled by active widget
-- [x] support for mouse click
-- [x] double-width character support (emoticons 😁)
-- [x] multiline solid button
+* widgets (controls) to implement
+  * [x] window
+  * [x] panel
+  * [x] static label / led
+  * [x] check box
+  * [x] edit field (text/number)
+  * [x] radio button
+  * [x] page control
+  * [x] progress bar
+  * [x] list box
+  * [x] combo box
+  * [x] scrollable text box
+  * [x] custom widget base
+  * [ ] scrollbar
+  * [ ] horizontal page control
+  * [x] popup windows
+  * [x] layers - to control visibility of groups of widgets
+  * [ ] password input
+* navigation
+  * [x] widgets navigation by Tab/Esc key
+  * [x] render focused widget state
+  * [x] blinking cursor instead of inversed colors
+  * [x] select widget by mouse
+* notifications
+  * [x] notify event per widget type (button clicked, checkbox toggled)
+* [x] color theme for window
+* [x] keyboard handler returns if key was handled by active widget
+* [x] support for mouse click
+* [x] double-width character support (emoticons 😁)
+* [x] multiline solid button
 
-
-# Prerequisites
+## Prerequisites
 
 Library is using C++14 and reguires gcc 7.5 or never.
 
@@ -84,9 +83,9 @@ Library is using C++14 and reguires gcc 7.5 or never.
 sudo apt install g++ cmake cmake-curses-gui
 ```
 
-# How to build demo
+## How to build demo
 
-Project is CMake-based and contains two targets: *TWinsDemo* and *TWinsUT*.  
+Project is CMake-based and contains two targets: *TWinsDemo* and *TWinsUT*.
 Tests are enabled by default, Demo has to be enabled from commandline or in `ccmake .`.
 
 ```bash
@@ -95,13 +94,13 @@ cmake -DTWINS_BUILD_DEMO=ON -DTWINS_THEME_DIR="../demo/inc/" ..
 make -j
 ```
 
-### Run GUI demo:
+### Run GUI demo
 
 ```bash
 ./bin/TWinsDemo
 ```
 
-### Run CLI demo:
+### Run CLI demo
 
 ```bash
 ./bin/TWinsDemo --cli
@@ -117,8 +116,8 @@ cmake -DTWINS_BUILD_UT=ON ..
 git submodule update --init
 ```
 
-You can also turn on building of the tests with `ccmake`:  
-Go to build/ and use `ccmake .` to turn on `TWINS_BUILD_UT`.  
+You can also turn on building of the tests with `ccmake`:
+Go to build/ and use `ccmake .` to turn on `TWINS_BUILD_UT`.
 Press `c` -> `c` -> `g` to reconfigure build scripts
 
 ### Build and run the tests

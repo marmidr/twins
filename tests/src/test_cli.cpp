@@ -27,6 +27,10 @@ protected:
 
 // -----------------------------------------------------------------------------
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+
 TEST_F(CLI, commands)
 {
     static bool ver_called;
@@ -377,3 +381,5 @@ TEST_F(CLI, override_handler)
         EXPECT_FALSE(temporary_called);
     }
 }
+
+#pragma GCC diagnostic pop // ignored "-Wunused-parameters"

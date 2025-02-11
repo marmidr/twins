@@ -125,4 +125,4 @@ constexpr twins::Array<twins::Widget, N> transforWindowDefinition()
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

@@ -4,7 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 
-image: gcc:8
+image: gcc:11
 
 # https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
 
@@ -30,9 +30,9 @@ definitions:
                 - git submodule update --init
                 # build
                 - mkdir build && cd build
-                - cmake -DCMAKE_BUILD_TYPE=Debug -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON ..
+                - cmake .. -DCMAKE_BUILD_TYPE=Debug -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON -DTWINS_SEPARATE_TESTS=OFF
                 - make -j4
-                - ctest -V --output-on-failure --timeout 20
+                - ctest -j1 -V --output-on-failure --timeout 20
 
         - step: &build_and_test_and_cover
             name: Build, test && cover

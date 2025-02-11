@@ -555,4 +555,4 @@ const char* String::u8skip(const char *str, unsigned toSkip, bool ignoreESC)
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

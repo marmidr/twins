@@ -581,4 +581,4 @@ uint8_t decodeInputSeq(RingBuff<char> &input, KeyCode &output)
 
 // -----------------------------------------------------------------------------
 
-}
+} // twins

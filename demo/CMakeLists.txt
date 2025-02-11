@@ -22,6 +22,12 @@ target_link_libraries(${TARGETNAME}
     twins
 )
 
+target_compile_options(${TARGETNAME}
+    PRIVATE
+        -Wno-unused-parameter
+        -Wno-missing-field-initializers
+)
+
 # FIXME: causes problems when used with VSCode
 # if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16")
 #     # https://cmake.org/cmake/help/v3.19/command/target_precompile_headers.html

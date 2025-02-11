@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 #pragma once
+
 #include "twins_common.hpp"
 #include "twins_esc_codes.hpp"
 #include "twins_string.hpp"
@@ -358,7 +359,7 @@ struct Widget
             uint16_t childrenIdx;   /// set in compile-time
             uint8_t  childrenCnt;   /// set in compile-time
         };
-    } link;
+    } link = {};
 };
 
 static constexpr WID WIDGET_ID_NONE = 0;    // convenient; default value points to nothing
@@ -761,4 +762,4 @@ inline Rect operator - (const Rect &r, const Coord &cord)
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

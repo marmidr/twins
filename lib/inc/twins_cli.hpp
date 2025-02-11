@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 #pragma once
+
 #include "twins_vector.hpp"
 #include "twins_string.hpp"
 #include "twins_ringbuffer.hpp"
@@ -115,4 +116,4 @@ void setOverrideHandler(CmdHandler handler);
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins::cli

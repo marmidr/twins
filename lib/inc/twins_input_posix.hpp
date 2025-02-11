@@ -6,11 +6,14 @@
  *****************************************************************************/
 
 #pragma once
+
 #include "twins_common.hpp"
+
 #include <stdint.h>
 
 // -----------------------------------------------------------------------------
 
+#if TWINS_ENV_LINUX_LIKE
 namespace twins
 {
 
@@ -28,4 +31,6 @@ const char * inputPosixRead(bool &quitRequested);
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins
+
+#endif // TWINS_ENV_LINUX_LIKE

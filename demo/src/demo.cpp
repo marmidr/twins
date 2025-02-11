@@ -7,6 +7,7 @@
 #include "twins_ringbuffer.hpp"
 #include "twins_vector.hpp"
 #include "twins_map.hpp"
+#include "twins_stack.hpp"
 #include "twins_utils.hpp"
 #include "twins_input_posix.hpp"
 #include "twins_pal_defimpl.hpp"
@@ -62,6 +63,13 @@ struct DemoPAL : twins::DefaultPAL
 
     void flushBuff() override
     {
+        if (showWgtDrawingInfo)
+        {
+            if (auto *pNfo = wgtDrawInfo.top())
+            {
+                pNfo->flushSize += lineBuff.size();
+            }
+        }
         twins::DefaultPAL::flushBuff();
     }
 
@@ -80,10 +88,50 @@ struct DemoPAL : twins::DefaultPAL
         }
     }
 
+    void wgtDrawBegin(const void *pWgt) override
+    {
+        if (showWgtDrawingInfo)
+        {
+            auto *pwgt = (const twins::Widget *)pWgt;
+            DrawNfo nfo {
+                .wgtInfo = twins::String{}.appendFmt("%s* %s (ID: %u)",
+                    twins::String{}.append(' ', wgtDrawInfo.size()).cstr(),
+                    twins::toString(pwgt->type),
+                    pwgt->id)
+            };
+            wgtDrawInfo.push(std::move(nfo));
+        }
+    }
+
+    void wgtDrawEnd(const void *pWgt) override
+    {
+        if (showWgtDrawingInfo)
+        {
+            if (auto *pNfo = wgtDrawInfo.pop())
+            {
+                pNfo->wgtInfo.appendFmt(" -> %u B", pNfo->flushSize);
+                wgtDrawTotalFlush += pNfo->flushSize;
+                TWINS_LOG_D("%s", pNfo->wgtInfo.cstr());
+            }
+        }
+    }
+
+public:
+    bool showWgtDrawingInfo{};
+    uint32_t wgtDrawTotalFlush{};
+
 private:
     std::recursive_mutex mMtx;
     unsigned mLogStartPos;
     FILE *mpLogFile;
+
+    struct DrawNfo
+    {
+        twins::String wgtInfo;
+        uint16_t flushSize{};
+    };
+
+    twins::Stack<DrawNfo> wgtDrawInfo;
 };
 
 
@@ -397,13 +445,11 @@ public:
                     out.append(c);
             }
         }
-
-        if (pWgt->id == ID_LABEL_KEYNAME)
+        else if (pWgt->id == ID_LABEL_KEYNAME)
         {
             out.appendFmt("KEY[%zu]:%s", lblKeyName.size(), lblKeyName.cstr());
         }
-
-        if (pWgt->id == ID_LBL_WORDWRAP)
+        else if (pWgt->id == ID_LBL_WORDWRAP)
         {
             const char *s =
                 ESC_BOLD "Name:\n" ESC_NORMAL
@@ -413,10 +459,29 @@ public:
                 ;
             out = twins::util::wordWrap(s, pWgt->size.width, " \n", "\n  ");
         }
-
-        if (pWgt->id == ID_LABEL_ABOUT)
+        else if (pWgt->id == ID_LABEL_ABOUT)
         {
             out.appendFmt(ESC_LINK_FMT, "https://bitbucket.org/marmidr/twins", "About...");
+        }
+        else if (pWgt->id == ID_LABEL_FTR)
+        {
+            out.append(" "
+                ESC_BOLD "F2 "       ESC_NORMAL "WndEn"      "  "
+                ESC_BOLD "F4 "       ESC_NORMAL "MouseOn"    "  "
+                ESC_BOLD "F5 "       ESC_NORMAL "Refresh"    "  "
+                ESC_BOLD "F6 "       ESC_NORMAL "ClrLog"     "  ");
+
+            const char *drawInfoFg = twins::glob::demoPAL.showWgtDrawingInfo ? ESC_FG_Lime : "";
+            out.appendFmt(
+                ESC_BOLD "F7 "       ESC_NORMAL "%sDrawNfo%s""  "
+                ESC_BOLD "F9/F10 "   ESC_NORMAL "Page"       "  "
+                "\U0001F569",
+                drawInfoFg,
+                ESC_FG_WHITE
+            );
+        }
+        else
+        {
         }
     }
 
@@ -779,6 +844,11 @@ static void gui()
                 twins::screenClrBelow();
                 twins::cursorRestorePos();
             }
+            else if (kc.m_spec && kc.key == twins::Key::F7)
+            {
+                twins::glob::demoPAL.showWgtDrawingInfo = !twins::glob::demoPAL.showWgtDrawingInfo;
+                wndMain.invalidate(ID_LABEL_FTR);
+            }
             else if (kc.m_spec && kc.m_ctrl && (kc.key == twins::Key::PgUp || kc.key == twins::Key::PgDown))
             {
                 if (twins::glob::wMngr.topWnd() == &wndMain)
@@ -811,8 +881,19 @@ static void gui()
 
             if (twins::glob::wMngr.topWnd() == &wndMain)
             {
+                if (twins::glob::demoPAL.showWgtDrawingInfo && wndMain.invalidatedWgts.size())
+                {
+                    TWINS_LOG_D("---");
+                }
+
                 twins::drawWidgets(wndMain.getWidgets(), wndMain.invalidatedWgts.data(), wndMain.invalidatedWgts.size());
                 wndMain.invalidate(twins::WIDGET_ID_NONE); // clear
+
+                if (twins::glob::demoPAL.showWgtDrawingInfo && twins::glob::demoPAL.wgtDrawTotalFlush)
+                {
+                    TWINS_LOG_D("Flush.tot: %u B", twins::glob::demoPAL.wgtDrawTotalFlush);
+                    twins::glob::demoPAL.wgtDrawTotalFlush = 0;
+                }
             }
         }
 

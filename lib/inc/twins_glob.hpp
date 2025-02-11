@@ -23,8 +23,8 @@ extern twins::IPal& pal;
 extern twins::WndManager& wMngr;
 /** @brief bottom-most window widgets */
 extern const twins::Widget* pMainWindowWgts;
-};
+} // glob
 
 // -----------------------------------------------------------------------------
 
-} // namespace
+} // twins

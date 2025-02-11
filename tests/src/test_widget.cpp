@@ -68,7 +68,7 @@ public:
         out.appendFmt("item: %d", itemIdx);
     }
 
-    void getComboBoxState(const twins::Widget* pWgt, int16_t &itemIdx, int16_t &selIdx, int16_t &itemsCount, bool &dropDown) override
+    void getComboBoxState(const twins::Widget* /* pWgt */, int16_t &itemIdx, int16_t &selIdx, int16_t &itemsCount, bool &dropDown) override
     {
         itemIdx = 1;
         selIdx = 0;
@@ -76,7 +76,7 @@ public:
         dropDown = true;
     }
 
-    void getComboBoxItem(const twins::Widget* pWgt, int itemIdx, twins::String &out) override
+    void getComboBoxItem(const twins::Widget* /* pWgt */, int itemIdx, twins::String &out) override
     {
         out.appendFmt("item: %d", itemIdx);
     }
@@ -100,27 +100,27 @@ public:
         topLine = 2;
     }
 
-    void onPageControlPageChange(const twins::Widget* pWgt, uint8_t newPageIdx) override
+    void onPageControlPageChange(const twins::Widget* /* pWgt */, uint8_t newPageIdx) override
     {
         pgIndex = newPageIdx;
     }
 
-    int getPageCtrlPageIndex(const twins::Widget* pWgt) override
+    int getPageCtrlPageIndex(const twins::Widget* /* pWgt */) override
     {
         return pgIndex;
     }
 
-    void onButtonClick(const twins::Widget* pWgt, const twins::KeyCode &kc) override
+    void onButtonClick(const twins::Widget* pWgt, const twins::KeyCode &/* kc */) override
     {
         clickedId = pWgt->id;
     }
 
-    void onCheckboxToggle(const twins::Widget* pWgt) override
+    void onCheckboxToggle(const twins::Widget* /* pWgt */) override
     {
         chbxChecked = !chbxChecked;
     }
 
-    bool getCheckboxChecked(const twins::Widget* pWgt) override
+    bool getCheckboxChecked(const twins::Widget* /* pWgt */) override
     {
         return chbxChecked;
     }
@@ -138,6 +138,9 @@ public:
 static WindowTestState wndTest;
 twins::IWindowState * getWndTest();
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 static constexpr twins::Widget wndTestDef =
 {
@@ -364,6 +367,9 @@ static constexpr twins::Widget wndTestDef =
         { /* NUL */ }
     }}
 };
+
+#pragma GCC diagnostic pop // ignored "-Wmissing-field-initializers"
+
 
 constexpr auto wndTestWidgets = twins::transforWindowDefinition<&wndTestDef>();
 const twins::Widget * pWndTestWidgets = wndTestWidgets.begin();

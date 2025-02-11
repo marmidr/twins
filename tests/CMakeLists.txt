@@ -66,4 +66,28 @@ add_custom_target(twins_cov_clean
 
 # ---
 
-add_test(NAME ${TARGETNAME} COMMAND $<TARGET_FILE:${TARGETNAME}>)
+option(TWINS_SEPARATE_TESTS "Run each of the test group separately" ON)
+
+# add test with filter to run every group of tests separately
+macro(add_subtest SUBTEST_NAME)
+    add_test(NAME ${SUBTEST_NAME} COMMAND $<TARGET_FILE:${TARGETNAME}> --gtest_filter=${SUBTEST_NAME}.*)
+endmacro()
+
+if (TWINS_SEPARATE_TESTS)
+    add_subtest(ANSI_INPUTDECODER)
+    add_subtest(CLI)
+    add_subtest(INP_POSIX)
+    add_subtest(MAP)
+    add_subtest(QUEUE)
+    add_subtest(STACK)
+    add_subtest(STRING)
+    add_subtest(STRINGBUFF)
+    add_subtest(TWINS)
+    add_subtest(UTILS)
+    add_subtest(VECTOR)
+    add_subtest(WIDGET)
+else()
+    # GitHub and BitBucket pipelines reports 'pure virtual method called' on filtered test run,
+    # so define a combined test for these cases
+    add_test(NAME TWins-TestAll COMMAND $<TARGET_FILE:${TARGETNAME}>)
+endif()
