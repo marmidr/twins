@@ -8,79 +8,135 @@
 
 // -----------------------------------------------------------------------------
 
-// Theme support enabled - user must provide theme colors
+/// Theme foreground colors:
+enum class ThemeFG : uint8_t
+{
+    ThemeBegin = (uint8_t)twins::ColorFG::ThemeBegin,
+    Window,
+    Label,
+    Checkbox,
+    CheckboxIntense,
+    Radio,
+    RadioIntense,
+    Listbox,
+    Button,
+    ButtonGreen,
+    ButtonRed,
+    ButtonOrange,
+    PanelChbox,
+    //
+    ThemeEnd
+};
+
+static_assert((uint8_t)ThemeFG::ThemeEnd <= (uint8_t)twins::ColorFG::ThemeEnd, "");
+
+/// Theme background colors:
+enum class ThemeBG : uint8_t
+{
+    ThemeBegin = (uint8_t)twins::ColorBG::ThemeBegin,
+    Window,
+    Listbox,
+    Button,
+    ButtonGreen,
+    ButtonRed,
+    ButtonOrange,
+    PanelChbox,
+    PanelVer,
+    PanelKeyCodes,
+    PanelLeds,
+    LabelBlue,
+    LabelFtr,
+    Edit1,
+    Edit1Intense,
+    Edit2,
+    Edit2Intense,
+    //
+    ThemeEnd
+};
+
+static_assert((uint8_t)ThemeBG::ThemeEnd <= (uint8_t)twins::ColorBG::ThemeEnd, "");
+
+// conversion from theme to twins colors:
+constexpr twins::ColorFG from(ThemeFG cl) { return twins::ColorFG(cl); }
+constexpr twins::ColorBG from(ThemeBG cl) { return twins::ColorBG(cl); }
+
+// -----------------------------------------------------------------------------
+
 namespace twins
 {
 
-// RGB color values: https://en.wikipedia.org/wiki/Web_colors
-
+// override the library weak implementation:
 const char* encodeClTheme(ColorFG cl)
 {
-    switch (cl)
+    switch (ThemeFG(cl))
     {
     // double-state colors
-    case ColorFG::Checkbox:         return ESC_FG_YELLOW;
-    case ColorFG::CheckboxIntense:  return ESC_FG_YELLOW_INTENSE;
-    case ColorFG::Radio:            return ESC_FG_GREEN;
-    case ColorFG::RadioIntense:     return ESC_FG_GREEN_INTENSE;
+    case ThemeFG::Checkbox:         return ESC_FG_YELLOW;
+    case ThemeFG::CheckboxIntense:  return ESC_FG_YELLOW_INTENSE;
+    case ThemeFG::Radio:            return ESC_FG_GREEN;
+    case ThemeFG::RadioIntense:     return ESC_FG_GREEN_INTENSE;
     // one-state colors
-    case ColorFG::Window:           return ESC_FG_COLOR(158);
-    case ColorFG::Label:            return ESC_FG_WHITE;
-    case ColorFG::Listbox:          return ESC_FG_GREEN;
-    case ColorFG::Button:           return ESC_FG_BLACK;
-    case ColorFG::ButtonGreen:      return ESC_FG_WHITE;
-    case ColorFG::ButtonRed:        return ESC_FG_WHITE;
-    case ColorFG::ButtonOrange:     return ESC_FG_DarkRed;
-    case ColorFG::PanelChbox:       return ESC_FG_MediumBlue;
+    case ThemeFG::Window:           return ESC_FG_COLOR(158);
+    case ThemeFG::Label:            return ESC_FG_WHITE;
+    case ThemeFG::Listbox:          return ESC_FG_GREEN;
+    case ThemeFG::Button:           return ESC_FG_BLACK;
+    case ThemeFG::ButtonGreen:      return ESC_FG_WHITE;
+    case ThemeFG::ButtonRed:        return ESC_FG_WHITE;
+    case ThemeFG::ButtonOrange:     return ESC_FG_DarkRed;
+    case ThemeFG::PanelChbox:       return ESC_FG_MediumBlue;
     default:                        return ESC_FG_DEFAULT;
     }
 }
 
+// override the library weak implementation:
 const char* encodeClTheme(ColorBG cl)
 {
-    switch (cl)
+    switch (ThemeBG(cl))
     {
-    case ColorBG::Window:           return ESC_BG_MidnightBlue;
-    case ColorBG::Listbox:          return ESC_BG_WHITE;
-    case ColorBG::Button:           return ESC_BG_BLACK_INTENSE;
-    case ColorBG::ButtonGreen:      return ESC_BG_OliveDrab;
-    case ColorBG::ButtonRed:        return ESC_BG_RED;
-    case ColorBG::ButtonOrange:     return ESC_BG_Orange;
-    case ColorBG::PanelChbox:       return ESC_BG_Gainsboro;
-    case ColorBG::PanelVer:         return ESC_BG_COLOR(106);
-    case ColorBG::PanelKeyCodes:    return ESC_BG_COLOR(169);
-    case ColorBG::PanelLeds:        return ESC_BG_LightBlue;
-    case ColorBG::LabelBlue:        return ESC_BG_DarkBlue;
-    case ColorBG::Edit1:            return ESC_BG_CYAN;
-    case ColorBG::Edit1Intense:     return ESC_BG_CYAN_INTENSE;
-    case ColorBG::Edit2:            return ESC_BG_GREEN;
-    case ColorBG::Edit2Intense:     return ESC_BG_GREEN_INTENSE;
-    case ColorBG::LabelFtr:         return ESC_BG_Navy;
+    case ThemeBG::Window:           return ESC_BG_MidnightBlue;
+    case ThemeBG::Listbox:          return ESC_BG_WHITE;
+    case ThemeBG::Button:           return ESC_BG_BLACK_INTENSE;
+    case ThemeBG::ButtonGreen:      return ESC_BG_OliveDrab;
+    case ThemeBG::ButtonRed:        return ESC_BG_RED;
+    case ThemeBG::ButtonOrange:     return ESC_BG_Orange;
+    case ThemeBG::PanelChbox:       return ESC_BG_Gainsboro;
+    case ThemeBG::PanelVer:         return ESC_BG_COLOR(106);
+    case ThemeBG::PanelKeyCodes:    return ESC_BG_COLOR(169);
+    case ThemeBG::PanelLeds:        return ESC_BG_LightBlue;
+    case ThemeBG::LabelBlue:        return ESC_BG_DarkBlue;
+    case ThemeBG::Edit1:            return ESC_BG_CYAN;
+    case ThemeBG::Edit1Intense:     return ESC_BG_CYAN_INTENSE;
+    case ThemeBG::Edit2:            return ESC_BG_GREEN;
+    case ThemeBG::Edit2Intense:     return ESC_BG_GREEN_INTENSE;
+    case ThemeBG::LabelFtr:         return ESC_BG_Navy;
     default:                        return ESC_BG_DEFAULT;
     }
 }
 
+// override the library weak implementation:
 ColorFG intensifyClTheme(ColorFG cl)
 {
-    switch (cl)
+    switch (ThemeFG(cl))
     {
-    case ColorFG::Checkbox:         return ColorFG::CheckboxIntense;
-    case ColorFG::Radio:            return ColorFG::RadioIntense;
+    case ThemeFG::Checkbox:         return from(ThemeFG::CheckboxIntense);
+    case ThemeFG::Radio:            return from(ThemeFG::RadioIntense);
     default:                        return cl;
     }
 }
 
+// override the library weak implementation:
 ColorBG intensifyClTheme(ColorBG cl)
 {
-    switch (cl)
+    switch (ThemeBG(cl))
     {
-    case ColorBG::Edit1:            return ColorBG::Edit1Intense;
-    case ColorBG::Edit2:            return ColorBG::Edit2Intense;
+    case ThemeBG::Edit1:            return from(ThemeBG::Edit1Intense);
+    case ThemeBG::Edit2:            return from(ThemeBG::Edit2Intense);
     default:                        return cl;
     }
 }
 
-}
+} // twins
+
 
 // -----------------------------------------------------------------------------
 
@@ -137,7 +193,7 @@ static constexpr twins::Widget pageVersionChildren[] =
         { panel : {
             title       : "VER 🍁",
             fgColor     : twins::ColorFG::White,
-            bgColor     : twins::ColorBG::PanelVer,
+            bgColor     : from(ThemeBG::PanelVer),
         }},
         link    : { (const twins::Widget[]) // set first field in union - pChildren
         {
@@ -182,7 +238,7 @@ static constexpr twins::Widget pageVersionChildren[] =
         { panel : {
             title       : "STATE: Leds",
             fgColor     : twins::ColorFG::Blue,
-            bgColor     : twins::ColorBG::PanelLeds,
+            bgColor     : from(ThemeBG::PanelLeds),
         }},
         link    : { pnlStateChildren }
     },
@@ -194,7 +250,7 @@ static constexpr twins::Widget pageVersionChildren[] =
         { panel : {
             title       : "KEY-CODES",
             fgColor     : twins::ColorFG::White,
-            bgColor     : twins::ColorBG::PanelKeyCodes,
+            bgColor     : from(ThemeBG::PanelKeyCodes),
         }},
         link    : { (const twins::Widget[])
         {
@@ -247,8 +303,8 @@ static constexpr twins::Widget pageVersionChildren[] =
         size    : {},
         { button : {
             text    : "YES",
-            fgColor : twins::ColorFG::ButtonGreen,
-            bgColor : twins::ColorBG::ButtonGreen,
+            fgColor : from(ThemeFG::ButtonGreen),
+            bgColor : from(ThemeBG::ButtonGreen),
             style   : twins::ButtonStyle::Solid
         }}
     },
@@ -259,8 +315,8 @@ static constexpr twins::Widget pageVersionChildren[] =
         size    : {},
         { button : {
             text    : "NO",
-            fgColor : twins::ColorFG::ButtonOrange,
-            bgColor : twins::ColorBG::ButtonOrange,
+            fgColor : from(ThemeFG::ButtonOrange),
+            bgColor : from(ThemeBG::ButtonOrange),
             style   : twins::ButtonStyle::Solid
         }}
     },
@@ -330,7 +386,7 @@ static constexpr twins::Widget pageServiceChildren[] =
                             "• " ESC_UNDERLINE_ON "PgUp/PgDown" ESC_UNDERLINE_OFF " -> scroll page" "\n"
                             "• " ESC_UNDERLINE_ON "Enter" ESC_UNDERLINE_OFF " -> select the item",
                     fgColor : twins::ColorFG::YellowIntense,
-                    bgColor : twins::ColorBG::LabelBlue,
+                    bgColor : from(ThemeBG::LabelBlue),
                 }}
             },
             {
@@ -362,7 +418,7 @@ static constexpr twins::Widget pageServiceChildren[] =
                 size    : {},
                 { radio : {
                     text    : "YES",
-                    fgColor : twins::ColorFG::Radio,
+                    fgColor : from(ThemeFG::Radio),
                     groupId : 1,
                     radioId : 0,
                 }}
@@ -439,7 +495,7 @@ static constexpr twins::Widget pageDiagnosticsChildren[] =
                 size    : { 30, 1 },
                 { textedit : {
                     fgColor     : twins::ColorFG::Black,
-                    bgColor     : twins::ColorBG::Edit1,
+                    bgColor     : from(ThemeBG::Edit1),
                 }}
             },
             {
@@ -449,7 +505,7 @@ static constexpr twins::Widget pageDiagnosticsChildren[] =
                 size    : { 30, 1 },
                 { textedit : {
                     fgColor     : twins::ColorFG::Black,
-                    bgColor     : twins::ColorBG::Edit2,
+                    bgColor     : from(ThemeBG::Edit2),
                 }}
             },
             { /* NUL */ }
@@ -468,8 +524,8 @@ static constexpr twins::Widget pageDiagnosticsChildren[] =
         size    : { 22, 10 },
         { panel : {
             title       : {},
-            fgColor     : twins::ColorFG::PanelChbox,
-            bgColor     : twins::ColorBG::PanelChbox,
+            fgColor     : from(ThemeFG::PanelChbox),
+            bgColor     : from(ThemeBG::PanelChbox),
         }},
         link    : { (const twins::Widget[]) // set first field in union - pChildren
         {
@@ -659,7 +715,7 @@ static constexpr twins::Widget pageComboboxChildren[] =
         { button : {
             text    : "Say YES",
             fgColor : twins::ColorFG::White,
-            bgColor : twins::ColorBG::ButtonGreen,
+            bgColor : from(ThemeBG::ButtonGreen),
             style   : twins::ButtonStyle::Simple
         }}
     },
@@ -671,7 +727,7 @@ static constexpr twins::Widget pageComboboxChildren[] =
         { button : {
             text    : "Say NO",
             fgColor : twins::ColorFG::White,
-            bgColor : twins::ColorBG::ButtonRed,
+            bgColor : from(ThemeBG::ButtonRed),
             style   : twins::ButtonStyle::Simple
         }}
     },
@@ -683,7 +739,7 @@ static constexpr twins::Widget pageComboboxChildren[] =
         { button : {
             text    : {},
             fgColor : twins::ColorFG::White,
-            bgColor : twins::ColorBG::ButtonGreen,
+            bgColor : twins::ColorBG::Green,
             style   : twins::ButtonStyle::Solid1p5
         }}
     },
@@ -701,8 +757,8 @@ static constexpr twins::Widget wndMain =
     size    : { 80, 15 },
     { window : {
         title       : ESC_FG_WHITE_INTENSE "Service Menu " ESC_UNDERLINE_ON "(Ctrl+D quit)" ESC_UNDERLINE_OFF,
-        fgColor     : twins::ColorFG::Window,
-        bgColor     : twins::ColorBG::Window,
+        fgColor     : from(ThemeFG::Window),
+        bgColor     : from(ThemeBG::Window),
         isPopup     : {},
         getState    : getWndMain,
     }},
@@ -808,7 +864,7 @@ static constexpr twins::Widget wndMain =
             { label : {
                 text    :  {},
                 fgColor : twins::ColorFG::White,
-                bgColor : twins::ColorBG::LabelFtr,
+                bgColor : from(ThemeBG::LabelFtr),
             }}
         },
         { /* NUL */ }
@@ -850,8 +906,8 @@ static constexpr twins::Widget wndPopup =
             size    : {},
             { button : {
                 text    : "YES",
-                fgColor : twins::ColorFG::ButtonGreen,
-                bgColor : twins::ColorBG::ButtonGreen,
+                fgColor : from(ThemeFG::ButtonGreen),
+                bgColor : from(ThemeBG::ButtonGreen),
                 style   : twins::ButtonStyle::Solid
             }}
         },
@@ -862,8 +918,8 @@ static constexpr twins::Widget wndPopup =
             size    : {},
             { button : {
                 text    : "NO",
-                fgColor : twins::ColorFG::ButtonRed,
-                bgColor : twins::ColorBG::ButtonRed,
+                fgColor : from(ThemeFG::ButtonRed),
+                bgColor : from(ThemeBG::ButtonRed),
                 style   : twins::ButtonStyle::Solid
             }}
         },
@@ -886,8 +942,8 @@ static constexpr twins::Widget wndPopup =
             size    : {},
             { button : {
                 text    : "OK",
-                fgColor : twins::ColorFG::ButtonGreen,
-                bgColor : twins::ColorBG::ButtonGreen,
+                fgColor : from(ThemeFG::ButtonGreen),
+                bgColor : from(ThemeBG::ButtonGreen),
                 style   : twins::ButtonStyle::Solid
             }}
         },

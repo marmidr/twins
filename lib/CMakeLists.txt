@@ -65,12 +65,6 @@ else()
     target_compile_definitions(${TARGETNAME} PUBLIC TWINS_CLI_LIGHTWEIGHT_CMD=0)
 endif()
 
-if (NOT "${TWINS_THEME_DIR}" STREQUAL "")
-    target_include_directories(${TARGETNAME} PUBLIC ${TWINS_THEME_DIR})
-    target_compile_definitions(${TARGETNAME} PUBLIC TWINS_THEMES=1)
-    message(STATUS "TWins themes enabled")
-endif()
-
 if (TWINS_BUILD_UT)
     option(TWINS_USE_SANITIZERS "Use GCC sanitizers for Unit Tests" ON)
     set(GCC_SANITIZERS "")

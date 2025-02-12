@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.20.0 - 2025-02-12
+
+* Changed
+  * new approach to colors themes
+
 ## 0.19.3 - 2025-02-11
 
 * Added

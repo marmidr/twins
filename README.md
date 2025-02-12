@@ -90,7 +90,7 @@ Tests are enabled by default, Demo has to be enabled from commandline or in `ccm
 
 ```bash
 mkdir build && cd build
-cmake -DTWINS_BUILD_DEMO=ON -DTWINS_THEME_DIR="../demo/inc/" ..
+cmake .. -D TWINS_BUILD_DEMO=ON
 make -j
 ```
 
@@ -112,7 +112,7 @@ TWins tests are using google test library as a submodule.
 The first step is to fetch the library:
 
 ```bash
-cmake -DTWINS_BUILD_UT=ON ..
+cmake .. -D TWINS_BUILD_UT=ON
 git submodule update --init
 ```
 

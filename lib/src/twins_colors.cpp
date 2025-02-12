@@ -65,10 +65,8 @@ const char* encodeCl(ColorFG cl)
     if ((int)cl < arrSize(mapClFg))
         return mapClFg[(int)cl];
 
-    #ifdef TWINS_THEMES
     if (INRANGE(cl, ColorFG::ThemeBegin, ColorFG::ThemeEnd))
         return encodeClTheme(cl);
-    #endif
 
     return "";
 }
@@ -78,11 +76,23 @@ const char* encodeCl(ColorBG cl)
     if ((int)cl < arrSize(mapClBg))
         return mapClBg[(int)cl];
 
-    #ifdef TWINS_THEMES
     if (INRANGE(cl, ColorBG::ThemeBegin, ColorBG::ThemeEnd))
         return encodeClTheme(cl);
-    #endif
 
+    return "";
+}
+
+__attribute__((weak))
+const char* encodeClTheme(ColorFG cl)
+{
+    (void)cl;
+    return "";
+}
+
+__attribute__((weak))
+const char* encodeClTheme(ColorBG cl)
+{
+    (void)cl;
     return "";
 }
 
@@ -126,10 +136,8 @@ ColorFG intensifyCl(ColorFG cl)
     if (cl == ColorFG::Default) // may not be correct
         return ColorFG::WhiteIntense;
 
-    #ifdef TWINS_THEMES
     if (INRANGE(cl, ColorFG::ThemeBegin, ColorFG::ThemeEnd))
         return intensifyClTheme(cl);
-    #endif
 
     return cl;
 }
@@ -143,11 +151,21 @@ ColorBG intensifyCl(ColorBG cl)
     if (cl == ColorBG::Default) // may not be correct
         return ColorBG::BlackIntense;
 
-    #ifdef TWINS_THEMES
     if (INRANGE(cl, ColorBG::ThemeBegin, ColorBG::ThemeEnd))
         return intensifyClTheme(cl);
-    #endif
 
+    return cl;
+}
+
+__attribute__((weak))
+ColorFG intensifyClTheme(ColorFG cl)
+{
+    return cl;
+}
+
+__attribute__((weak))
+ColorBG intensifyClTheme(ColorBG cl)
+{
     return cl;
 }
 

@@ -25,13 +25,6 @@
 # define __TWINS_LINK_SECRET    void*_
 #endif
 
-#ifdef TWINS_THEMES
-# include "twins_theme.hpp"
-#else
-# define TWINS_THEME_FG
-# define TWINS_THEME_BG
-#endif
-
 // -----------------------------------------------------------------------------
 
 namespace twins
@@ -88,10 +81,9 @@ enum class ColorFG : uint8_t
     CyanIntense,
     White,
     WhiteIntense,
-    // begin of theme-defined colors
+    // theme-defined colors:
     ThemeBegin,
-    TWINS_THEME_FG
-    ThemeEnd
+    ThemeEnd = ThemeBegin + 99
 };
 
 /** @brief Background colors */
@@ -115,29 +107,24 @@ enum class ColorBG : uint8_t
     CyanIntense,
     White,
     WhiteIntense,
-    // begin of theme-defined colors
+    // theme-defined colors:
     ThemeBegin,
-    TWINS_THEME_BG
-    ThemeEnd
+    ThemeEnd = ThemeBegin + 99
 };
 
 /** @brief Convert color identifier to ASCII ESC code */
 const char* encodeCl(ColorFG cl);
 const char* encodeCl(ColorBG cl);
-#ifdef TWINS_THEMES
 // implemented in user code:
 const char* encodeClTheme(ColorFG cl);
 const char* encodeClTheme(ColorBG cl);
-#endif
 
 /** @brief Color intensification */
 ColorFG intensifyCl(ColorFG cl);
 ColorBG intensifyCl(ColorBG cl);
-#ifdef TWINS_THEMES
 // implemented in user code:
 ColorFG intensifyClTheme(ColorFG cl);
 ColorBG intensifyClTheme(ColorBG cl);
-#endif
 
 template<typename CL>
 inline void intensifyClIf(bool cond, CL &cl) { if (cond) cl = intensifyCl(cl); }

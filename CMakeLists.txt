@@ -70,8 +70,6 @@ endif()
 
 
 if (TWINS_BUILD_DEMO)
-    # set path to directory where is the theme file.
-    set(TWINS_THEME_DIR ${CMAKE_CURRENT_SOURCE_DIR}/demo/inc CACHE STRING "")
 endif()
 
 # add library code
