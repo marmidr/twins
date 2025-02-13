@@ -187,6 +187,7 @@ TEST_F(TWINS, logRaw)
 {
     twins::logRawBegin("START", true);
     twins::logRawWrite("raw string");
+    twins::logRawWriteLen("***", 1);
     twins::logRawEnd("END");
 }
 

@@ -176,7 +176,6 @@ struct DefaultPAL : public twins::IPal
 
     void unlock() override {}
 
-
     void wgtDrawBegin(const void */* pWgt */) override {}
 
     void wgtDrawEnd(const void */* pWgt */) override {}

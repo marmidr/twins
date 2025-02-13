@@ -240,6 +240,11 @@ void logRawWrite(const char *msg)
     writeStr(msg);
 }
 
+void logRawWriteLen(const char *msg, uint16_t msgLen)
+{
+    writeStrLen(msg, msgLen);
+}
+
 void logRawEnd(const char *epilogue)
 {
     writeStr(epilogue);

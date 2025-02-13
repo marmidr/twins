@@ -12,19 +12,15 @@
 
 // -----------------------------------------------------------------------------
 
-namespace twins
+namespace twins::glob
 {
 
-namespace glob
-{
-/** @brief reference to actual PAL */
-extern twins::IPal& pal;
 /** @brief window manager */
 extern twins::WndManager& wMngr;
+
 /** @brief bottom-most window widgets */
 extern const twins::Widget* pMainWindowWgts;
-} // glob
 
 // -----------------------------------------------------------------------------
 
-} // twins
+} // twins::glob

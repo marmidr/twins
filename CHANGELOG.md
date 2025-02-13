@@ -2,10 +2,14 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
-## 0.20.0 - 2025-02-12
+## 0.20.0 - 2025-02-13
 
+* Added
+  * logRawWriteLen()
 * Changed
   * new approach to colors themes
+* Removed
+  * glob::extern twins::IPal& pal;
 
 ## 0.19.3 - 2025-02-11
 

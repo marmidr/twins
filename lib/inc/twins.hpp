@@ -458,6 +458,7 @@ void log(const uint64_t *pTimestamp, const char *file, unsigned line, const char
 /** @brief Logs with more control */
 void logRawBegin(const char *prologue = "", bool timeStamp = false);
 void logRawWrite(const char *msg);
+void logRawWriteLen(const char *msg, uint16_t msgLen);
 void logRawEnd(const char *epilogue = "");
 
 /** @brief Print HH:MM:SS.mmm */

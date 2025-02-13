@@ -9,6 +9,10 @@
 #pragma once
 
 // field set in user Widget definition;
+#ifdef __TWINS_LINK_SECRET
+# undef __TWINS_LINK_SECRET
+#endif
+
 #define __TWINS_LINK_SECRET     const Widget *pChildren
 
 #include "twins.hpp"

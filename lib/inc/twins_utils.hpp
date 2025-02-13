@@ -21,6 +21,7 @@ namespace twins::util
 
 /** @brief Like \b strchr() but with limited length */
 const char* strnchr(const char *str, int strSz, char c);
+
 /** @brief Like \b strchr() but with pointed end of string */
 const char* strechr(const char *str, const char *estr, char c);
 
@@ -111,7 +112,7 @@ struct WrappedString
     /** @brief Returns true if source or configuration was changed so the wrapped string is deprecated */
     bool isDirty() const { return mDirty; }
 
-    /** @brief */
+    /** @brief Assignment operator */
     WrappedString& operator =(const char *str)
     {
         mLines.clear();
@@ -120,14 +121,14 @@ struct WrappedString
         return *this;
     }
 
-    /** @brief */
+    /** @brief Assignment operator */
     WrappedString& operator =(const String &other)
     {
         *this = other.cstr();
         return *this;
     }
 
-    /** @brief */
+    /** @brief Assignment operator */
     WrappedString& operator =(String &&other)
     {
         mLines.clear();

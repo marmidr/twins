@@ -10,6 +10,8 @@
 #include "twins.hpp"
 #include "twins_vector.hpp"
 
+#include <assert.h>
+
 // -----------------------------------------------------------------------------
 
 namespace twins

@@ -1,6 +1,6 @@
 {
     "testMate.cpp.test.executables": "{build,Build,BUILD}/**/*{test,Test,UT}*",
-    "cmake.cmakePath": "c:\\msys64\\mingw32\\bin\\cmake.exe",
+    "cmake.cmakePath": "c:\\msys64\\usr\\bin\\cmake.exe",
     "files.associations": {
         "initializer_list": "cpp",
         "string_view": "cpp",

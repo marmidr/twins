@@ -14,7 +14,7 @@
 namespace twins
 {
 
-/** @brief Basic, common implementation of interface */
+/** @brief Basic, common implementation of the WindowState interface */
 class WindowStateBase : public IWindowState
 {
 public:
@@ -41,6 +41,8 @@ public:
 
     void invalidateImpl(const twins::WID *pId, uint16_t count, bool instantly) override
     {
+        (void)instantly;
+
         if (count == 1 && *pId == twins::WIDGET_ID_NONE)
             return;
 

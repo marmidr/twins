@@ -219,7 +219,7 @@ public:
         mCapacity = newCapacity;
     }
 
-    /** @brief Set new size (smaller or bigger) */
+    /** @brief Set new size (smaller or bigger); new items will be initialized */
     void resize(uint16_t newSize)
     {
         if (newSize == mSize)
