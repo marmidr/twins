@@ -1,6 +1,6 @@
 ################################################################################
 #   TWins library - unit tests
-#   (c) 2020 Mariusz Midor
+#   (c) 2020-2025 Mariusz Midor
 #   https://bitbucket.org/marmidr/twins/
 ################################################################################
 
@@ -32,6 +32,13 @@ target_link_libraries(${TARGETNAME}
     gmock
 )
 
+if(NOT ${CMAKE_COLOR_MAKEFILE})
+    target_compile_definitions(${TARGETNAME}
+        PUBLIC
+        GTEST_NOCOLOR
+    )
+endif()
+
 # FIXME: causes problems when used with VSCode
 # if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16")
 #     # https://cmake.org/cmake/help/v3.19/command/target_precompile_headers.html
@@ -45,26 +52,48 @@ target_link_libraries(${TARGETNAME}
 #     )
 # endif()
 
-# ---
+# ###############################################################################
 
+# ignore external dependencies
 set(GCOVR_EXCLUDES
     -e ".*/googletest/.*"
     -e ".*/test_.*cpp"
     -e ".*/twins_window_state.hpp"
 )
 
-add_custom_target(twins_cov_only
+set(GCOVR_PROJECT_TILE "GCOVR :: TWins library Coverage")
+
+add_custom_target(twins_cover_gen
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND mkdir -p cover_html
-    COMMAND gcovr -r ${PROJECT_SOURCE_DIR} -s ${GCOVR_EXCLUDES} -b --html-details -o cover_html/cover.html
-    COMMAND ln -sf cover_html/cover.html cover.html
+    COMMAND sh -c "mkdir -p coverage_report"
+
+    # https://gcovr.com/en/stable/manpage.html
+    COMMAND echo "~~ Generate HTML report..."
+    COMMAND gcovr -r ${PROJECT_SOURCE_DIR}
+                -s ${GCOVR_EXCLUDES}
+                --html-title ${GCOVR_PROJECT_TILE}
+                --txt-metric branch
+                --html-details
+                -o coverage_report/cover.html
 )
 
-add_custom_target(twins_cov_clean
+# remove coverage data created during test-run
+add_custom_target(twins_cover_clean
+    COMMAND echo "~~ Remove gcov coverage data files..."
     COMMAND find ${CMAKE_BINARY_DIR} -name *.gcda -delete
 )
 
-# ---
+# create Cobertura report
+add_custom_target(twins_cobertura_gen
+    COMMAND echo "~~ Generate COBERTURA report..."
+    COMMAND gcovr -r ${PROJECT_SOURCE_DIR}
+                -s ${GCOVR_EXCLUDES}
+                --cobertura coverage_report_cobertura.xml
+                --cobertura-pretty
+                --txt-metric branch
+)
+
+# ###############################################################################
 
 option(TWINS_SEPARATE_TESTS "Run each of the test group separately" ON)
 

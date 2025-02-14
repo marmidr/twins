@@ -30,7 +30,7 @@ definitions:
                 - git submodule update --init
                 # build
                 - mkdir build && cd build
-                - cmake .. -DCMAKE_BUILD_TYPE=Debug -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON -DTWINS_SEPARATE_TESTS=OFF
+                - cmake .. -D CMAKE_BUILD_TYPE=Debug -D TWINS_USE_SANITIZERS=OFF -D TWINS_BUILD_UT=ON -D TWINS_SEPARATE_TESTS=OFF
                 - make -j4
                 - ctest -j1 -V --output-on-failure --timeout 20
 
@@ -46,7 +46,7 @@ definitions:
                 - git submodule update --init --remote
                 # build
                 - mkdir build && cd build
-                - cmake -DCMAKE_BUILD_TYPE=Debug -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON ..
+                - cmake -D CMAKE_BUILD_TYPE=Debug -D TWINS_USE_SANITIZERS=OFF -D TWINS_BUILD_UT=ON ..
                 - make -j4
                 - ctest -V --output-on-failure --timeout 20
                 # create coverage report
@@ -80,7 +80,7 @@ definitions:
                 - export PATH=$SONAR_ROOT/build-wrapper-linux-x86:$PATH
                 # run cmake
                 - mkdir sonarbuild && cd sonarbuild
-                - cmake -DCMAKE_BUILD_TYPE=Debug -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON ..
+                - cmake -D CMAKE_BUILD_TYPE=Debug -D TWINS_USE_SANITIZERS=OFF -D TWINS_BUILD_UT=ON ..
                 # wrapped-build
                 - build-wrapper-linux-x86-64 --out-dir $BW_OUTPUT make -j4
                 - ctest -V --output-on-failure --timeout 20

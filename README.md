@@ -127,11 +127,27 @@ make -j
 ctest -V
 ```
 
-If you have `gcovr` installed, after running tests you can generate test coverage HTML report
+### Test coverage
+
+Install gcovr in the MSYS2 **MSYS** console:
 
 ```bash
-make twins_cov_only
-firefox cover_html/cover.html
+# coverage tool: https://gcovr.com/en/stable/installation.html
+pacman -S msys/python
+pacman -S msys/python-lxml
+pacman -S msys/python-pip
+pip install gcovr
+```
+
+Generate coverage:
+
+```bash
+# run tests to generate coverage data
+ctest -V
+# generate report
+make twins_cover_gen
+# display it
+firefox coverage_report/cover.html
 ```
 
 ---

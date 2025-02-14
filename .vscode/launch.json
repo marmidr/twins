@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(msys2) Debug Demo",
+            "name": "(msys2) Debug TWinsUT",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\bin\\TWinsDemo.exe",
-            // "args": ["--cli"],
-            "args": [],
+            "program": "${workspaceFolder}\\build-vscode\\bin\\TWinsUT.exe",
+            "args": ["--gtest_filter=VECTOR*"],
+            // "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],

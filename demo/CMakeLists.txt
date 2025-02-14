@@ -1,6 +1,6 @@
 ################################################################################
 #   TWins library
-#   (c) 2020 Mariusz Midor
+#   (c) 2020-2025 Mariusz Midor
 #   https://bitbucket.org/marmidr/twins/
 #   https://github.com/marmidr/twins/
 ################################################################################

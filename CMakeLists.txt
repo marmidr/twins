@@ -1,6 +1,6 @@
 ################################################################################
 #   TWins library test application
-#   (c) 2020-2024 Mariusz Midor
+#   (c) 2020-2025 Mariusz Midor
 #   https://bitbucket.org/marmidr/twins/
 #   https://github.com/marmidr/twins/
 ################################################################################
@@ -20,14 +20,14 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(CMAKE_CXX_STANDARD  14)
     set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
     # C++ flags
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wmissing-include-dirs -Wshadow -Wextra")
     # https://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-designator")
     endif()
 
     if (NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
     endif()
 else()
     # message("I am called from other project with add_subdirectory().")
@@ -63,7 +63,7 @@ if (TWINS_BUILD_UT)
     # enable CTest
     enable_testing() # must be in the root script
     if (NOT TARGET gtest)
-        add_subdirectory(extern/googletest EXCLUDE_FROM_ALL )
+        add_subdirectory(extern/googletest EXCLUDE_FROM_ALL)
     endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()

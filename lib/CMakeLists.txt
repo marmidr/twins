@@ -1,6 +1,6 @@
 ################################################################################
 #   TWins library
-#   (c) 2020 Mariusz Midor
+#   (c) 2020-2025 Mariusz Midor
 #   https://bitbucket.org/marmidr/twins/
 #   https://github.com/marmidr/twins/
 ################################################################################
@@ -65,6 +65,14 @@ else()
     target_compile_definitions(${TARGETNAME} PUBLIC TWINS_CLI_LIGHTWEIGHT_CMD=0)
 endif()
 
+# https://cmake.org/cmake/help/latest/command/add_custom_command.html
+# add_custom_command(TARGET ${TARGETNAME} POST_BUILD
+#     COMMAND ${SIZE} -G ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGETNAME}
+#     COMMENT "Output binary size:"
+# )
+
+# ###############################################################################
+
 if (TWINS_BUILD_UT)
     option(TWINS_USE_SANITIZERS "Use GCC sanitizers for Unit Tests" ON)
     set(GCC_SANITIZERS "")
@@ -76,18 +84,18 @@ if (TWINS_BUILD_UT)
     if (TWINS_USE_SANITIZERS)
         if (DEFINED ENV{WSL_DISTRO_NAME})
             message(STATUS "Platform: WSL $ENV{WSL_DISTRO_NAME}")
-            message(STATUS "Sanitizers not supported on WSL")
+            message(STATUS "  Sanitizers not supported on WSL")
         elseif (MINGW OR MSYS)
             set(GCC_SANITIZERS "")
             message(STATUS "Platform: MINGW / MSYS")
-            message(STATUS "Sanitizers not supported on MINGW / MSYS")
+            message(STATUS "  Sanitizers not supported on MINGW / MSYS")
         elseif (UNIX)
             # target_compile_options(${TARGETNAME} PRIVATE -static-libasan)
             # target_compile_options(${TARGETNAME} PRIVATE -static-libubsan)
             set(GCC_SANITIZERS "-fsanitize=leak,address,undefined")
             message(STATUS "Platform: UNIX")
         else()
-            message(STATUS "Platform: Unknown")
+            message(WARNING "Platform: Unknown")
         endif()
     endif()
 
