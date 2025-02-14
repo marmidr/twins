@@ -2,10 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
-## 0.20.0 - 2025-02-13
+## 0.20.0 - 2025-02-14
 
 * Added
   * logRawWriteLen()
+  * CLI: multiple password mode added
 * Changed
   * new approach to colors themes
 * Removed

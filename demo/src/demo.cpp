@@ -969,7 +969,7 @@ static void cli()
             TWINS_CLI_HANDLER
             {
                 twins::writeStrFmt("Enabled password mode" "\r\n");
-                twins::cli::setPassword("qwerty");
+                twins::cli::passwordSet({"qwerty"});
             }
         },
         {

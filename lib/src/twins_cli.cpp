@@ -39,8 +39,12 @@ struct CliState
     RingBuff<char>  seqRingBuff;
     Queue<String>   cmdQue;
     CmdHandler      overrideHandler;
-    String          password = {};
-    bool            passwordMode  = {};
+    //
+    Vector<String>  passwords;
+    String          passwordMatchPrompt;
+    String          passwordValue;
+
+    bool passwordMode() const { return passwords.size() > 0; }
 };
 
 // trick to avoid automatic variable creation/destruction causing calls to uninitialized PAL
@@ -79,15 +83,23 @@ void reset(void)
     g_cs.historyIdx = 0;
 }
 
-void setPassword(String pw)
+void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrmpt)
 {
-    g_cs.password = std::move(pw);
-    g_cs.passwordMode = g_cs.password.size() > 0;
+    g_cs.passwords.clear();
+    g_cs.passwords.append(std::move(passwords));
+    g_cs.passwordValue.clear();
+    g_cs.passwordMatchPrompt = onPasswordMatchPrmpt;
 }
 
 bool passwordModeActive()
 {
-    return g_cs.passwordMode;
+    return g_cs.passwordMode();
+}
+
+String passwordValue()
+{
+    auto psw = std::move(g_cs.passwordValue);
+    return psw;
 }
 
 void processInput(const char* data, uint8_t dataLen)
@@ -143,7 +155,7 @@ void processInput(twins::RingBuff<char> &rb)
             case Key::Up:
             case Key::Down:
                 // history inactive in password mode
-                if (g_cs.history.size() && !g_cs.passwordMode)
+                if (g_cs.history.size() && !g_cs.passwordMode())
                 {
                     g_cs.historyIdx += kc.key == Key::Up ? -1 : 1;
 
@@ -232,7 +244,7 @@ void processInput(twins::RingBuff<char> &rb)
 
                     // append to history, limit history size;
                     // prevents password to be stored in history
-                    if (!g_cs.passwordMode)
+                    if (!g_cs.passwordMode())
                     {
                         int idx = 0;
                         if (auto *str = g_cs.history.find(g_cs.lineBuff, &idx))
@@ -277,7 +289,7 @@ void processInput(twins::RingBuff<char> &rb)
                 g_cs.cursorPos += 1;
 
                 // echo received character; in password mode, replace it with '*'
-                if (g_cs.passwordMode)
+                if (g_cs.passwordMode())
                 {
                     p_seq = "*";
                     seq_sz = 1;
@@ -505,16 +517,16 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
 
     if (!g_cs.overrideHandler)
     {
-        if (g_cs.passwordMode)
+        if (g_cs.passwordMode())
         {
-            if (cmd == g_cs.password)
+            if (g_cs.passwords.find(cmd))
             {
-                g_cs.passwordMode  = false;
-                // writeStr(CRLF);
+                g_cs.passwordValue = cmd;
+                g_cs.passwords.clear();
                 writeStr(ESC_FG_GREEN_INTENSE);
                 writeStr("Access granted." CRLF);
                 writeStr(ESC_FG_DEFAULT);
-                writeStr("CLI interface ready; type 'help' for available commands.");
+                writeStr(g_cs.passwordMatchPrompt.cstr());
                 prompt(true);
                 flushBuffer();
                 g_cs.cmdQue.read();

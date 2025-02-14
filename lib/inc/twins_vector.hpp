@@ -110,9 +110,9 @@ public:
 
     /** @brief Constructor from initializer_list */
     template<typename Tv>
-    explicit Vector(const std::initializer_list<Tv> &items)
+    Vector(const std::initializer_list<Tv> &items)
     {
-        append(items);
+        append(items.begin(), items.size());
     }
 
     /** @brief Move constructor */
@@ -248,7 +248,9 @@ public:
         mCapacity = mSize = newSize;
     }
 
-    /** @brief Change buffer capacity to enough for \b size items */
+    /** @brief Change buffer capacity to be sufficient for current items
+     *  @param force Reallocate buffer, even if it change by less than 64 elements
+     */
     void shrink(bool force = false)
     {
         if (mCapacity == mSize)
@@ -299,8 +301,8 @@ public:
         mpItems[mSize++] = std::forward<Tv>(val);
     }
 
-    /** @brief Append empty element and return reference to it */
-    T& append(void)
+    /** @brief Append an empty element and return a reference to it */
+    T& append()
     {
         growAsNecessary();
         return mpItems[mSize++];
@@ -315,11 +317,31 @@ public:
         mSize += count;
     }
 
-    /** @brief Append given initialzier list by copy */
+    /** @brief Append given initializer list by copy */
     template<typename Tv>
     void append(const std::initializer_list<Tv> &items)
     {
         append(items.begin(), items.size());
+    }
+
+    /** @brief Append given vector items by copy */
+    template<typename Tv>
+    void append(const Vector<Tv> &items)
+    {
+        append(items.begin(), items.size());
+    }
+
+    /** @brief Append given vector items by move */
+    template<typename Tv>
+    void append(Vector<Tv> &&items)
+    {
+        reserve(mSize + items.size());
+
+        for (uint16_t i = 0; i < items.size(); i++)
+        {
+            auto &src = items[i];
+            mpItems[mSize++] = std::move(src);
+        }
     }
 
     /** @brief Delete element at \p idx */

@@ -8,6 +8,7 @@
 #include "gmock/gmock.h"
 
 #include "twins_vector.hpp"
+#include "twins_string.hpp"
 
 #include <array>
 
@@ -206,4 +207,27 @@ TEST(VECTOR, std_string)
     s.resize(100);
     v.append(s);
     v.insert(0, "X");
+}
+
+TEST(VECTOR, append_vector_by_move)
+{
+    auto items = twins::Vector<twins::String>({"a", "b", "c"});
+    auto items_moved = twins::Vector<twins::String>();
+
+    items_moved.append("x");
+    items_moved.append(std::move(items));
+
+    items.clear();
+    items_moved.clear();
+}
+
+TEST(VECTOR, append_initializer_list)
+{
+    const auto items = std::initializer_list<twins::String>({"a", "b", "c"});
+    auto items_moved = twins::Vector<twins::String>();
+
+    items_moved.append("x");
+    items_moved.append(items);
+
+    items_moved.clear();
 }

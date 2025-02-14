@@ -382,4 +382,55 @@ TEST_F(CLI, override_handler)
     }
 }
 
+TEST_F(CLI, passwodr_mode)
+{
+    // initializer_list<const char*>
+    {
+        EXPECT_STREQ("", twins::cli::passwordValue().cstr());
+
+        twins::cli::passwordSet({"qwerty"});
+        EXPECT_TRUE(twins::cli::passwordModeActive());
+
+        twins::cli::passwordSet({});
+        EXPECT_FALSE(twins::cli::passwordModeActive());
+    }
+
+    // initializer_list<const char*>
+    {
+        const twins::cli::Cmd commands[] = { { /* terminator */ } };
+
+        twins::cli::passwordSet({"qwerty", "po", "lelum"});
+        EXPECT_TRUE(twins::cli::passwordModeActive());
+
+        // wrong password
+        twins::cli::processInput("X\r");
+        EXPECT_TRUE(twins::cli::checkAndExec(commands));
+        EXPECT_TRUE(twins::cli::passwordModeActive());
+        EXPECT_STREQ("", twins::cli::passwordValue().cstr());
+
+        // correct password
+        twins::cli::processInput("qwerty\r");
+        EXPECT_TRUE(twins::cli::checkAndExec(commands));
+        EXPECT_FALSE(twins::cli::passwordModeActive());
+        EXPECT_STREQ("qwerty", twins::cli::passwordValue().cstr());
+    }
+
+    // Vector<String> &&
+    {
+        const twins::cli::Cmd commands[] = { { /* terminator */ } };
+
+        twins::Vector<twins::String> passwords = {"qwerty", "po", "lelum"};
+        twins::cli::passwordSet(std::move(passwords));
+        EXPECT_TRUE(passwords.size() == 0);
+        EXPECT_TRUE(twins::cli::passwordModeActive());
+
+        // correct password
+        twins::cli::processInput("lelum\r");
+        EXPECT_TRUE(twins::cli::checkAndExec(commands));
+        EXPECT_FALSE(twins::cli::passwordModeActive());
+        EXPECT_STREQ("lelum", twins::cli::passwordValue().cstr());
+        EXPECT_STREQ("", twins::cli::passwordValue().cstr());
+    }
+}
+
 #pragma GCC diagnostic pop // ignored "-Wunused-parameters"

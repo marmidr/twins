@@ -63,10 +63,15 @@ int main(int argc, char **argv)
 {
     std::vector<char*> vargs(argv, argv+argc);
 
-    // forcing this makes it impossible to work with VSCode Test Explorer
-    // auto arg1 = std::string("--gtest_color=yes");
-    // vargs.push_back((char*)arg1.c_str());
-    // argc = vargs.size();
+#ifdef GTEST_NOCOLOR // from CMake
+    std::string color = "--gtest_color=no";
+    vargs.push_back((char*)color.c_str());
+    argc = vargs.size();
+#else
+    std::string color = "--gtest_color=yes";
+    vargs.push_back((char*)color.c_str());
+    argc = vargs.size();
+#endif
 
     testing::InitGoogleTest(&argc, vargs.data());
     twins::mouseMode(twins::MouseMode::M1);

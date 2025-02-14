@@ -60,14 +60,20 @@ extern bool echoNlAfterCr;
 void reset(void);
 
 /**
- * @brief Sets password to \p pw, if \p pw is empty, password mode is disabled.
+ * @brief Sets a valid passwords to be entered; if \p passwords is empty, password mode is disabled.
+ * @param onPasswordMatchPrmpt - message printed when correct password is entered
  */
-void setPassword(String pw);
+void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrmpt = "");
 
 /**
  * @brief Returns state of password mode. It is automatically reset to \p false when correct password is provided.
  */
 bool passwordModeActive();
+
+/**
+ * @brief Returns the entered correct password or ""
+ */
+String passwordValue();
 
 /**
  * @brief Process \p data, emit echo
