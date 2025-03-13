@@ -26,7 +26,10 @@ namespace twins::cli
 using Argv = Vector<const char*>;
 using CmdHandler = std::function<void(twins::cli::Argv &argv)>;
 
-#define TWINS_CLI_HANDLER  [](twins::cli::Argv &argv)
+#define TWINS_CLI_HANDLER               .handler = [](twins::cli::Argv &argv)
+#define TWINS_CLI_ACCESS_UNRESTRICTED   0x00
+// 🔒 🔐 🔑
+#define TWINS_CLI_LOCK_SYMBOL           "🔒"
 
 /**
  * @brief Struct holding command name and pointer to handler function
@@ -36,13 +39,13 @@ struct Cmd
 {
     const char* name;
     const char* help;
+    uint8_t access = TWINS_CLI_ACCESS_UNRESTRICTED;
     #if TWINS_CLI_LIGHTWEIGHT_CMD
     void (*handler)(twins::cli::Argv &argv);
     #else
     CmdHandler handler;
     #endif
 };
-
 
 // -----------------------------------------------------------------------------
 
@@ -53,6 +56,9 @@ extern bool verbose;
 
 /** @brief Echo NL if CR (Enter) key detected */
 extern bool echoNlAfterCr;
+
+/** @brief Used together with the password mode */
+extern uint8_t accessFlags;
 
 /**
  * @brief Reset internal state: buffers, counters, cursor
@@ -66,9 +72,15 @@ void reset(void);
 void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrmpt = "");
 
 /**
+ * @brief Activates/deactivates a password entering mode (echoes *** instead of letters)
+ * @param en    enable/disable password mode
+ */
+void passwordModeEnable(bool en);
+
+/**
  * @brief Returns state of password mode. It is automatically reset to \p false when correct password is provided.
  */
-bool passwordModeActive();
+bool passwordModeIsEnabled();
 
 /**
  * @brief Returns the entered correct password or ""
@@ -94,6 +106,15 @@ void prompt(bool newLn = true);
  * @brief Returns the command history
  */
 History& getHistory(void);
+
+/**
+ * @brief Compares the \p cmdAccessFlags against the \c accessFlags
+ * @param cmdAccessFlags    Combination of bitfields
+ * @param promptAccDenied   Prompt a message that command access is forbidden
+ * @param enterPasswMode    if access is forbidden and promptAccDenied==true, enable the password enter mode
+ * @retval true if the command is allowed
+ */
+bool checkAccessGranted(uint8_t cmdAccessFlags, bool promptAccDenied = true, bool enterPasswMode = true);
 
 /**
  * @brief If line ends with '\r', call the matching \p commands handler

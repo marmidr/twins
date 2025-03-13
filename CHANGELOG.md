@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.21.0 - 2025-03-13
+
+* Changed
+  * CLI: each command may be individually password-protected, with a different access level
+
 ## 0.20.0 - 2025-02-14
 
 * Added

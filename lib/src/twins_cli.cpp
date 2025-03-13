@@ -43,8 +43,7 @@ struct CliState
     Vector<String>  passwords;
     String          passwordMatchPrompt;
     String          passwordValue;
-
-    bool passwordMode() const { return passwords.size() > 0; }
+    bool            passwordEntryMode = {};
 };
 
 // trick to avoid automatic variable creation/destruction causing calls to uninitialized PAL
@@ -54,6 +53,7 @@ CliState& g_cs = (CliState&)cs_buff;
 // global variables
 bool verbose = true;
 bool echoNlAfterCr = false;
+uint8_t accessFlags = 0;
 
 // -----------------------------------------------------------------------------
 
@@ -89,11 +89,20 @@ void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrm
     g_cs.passwords.append(std::move(passwords));
     g_cs.passwordValue.clear();
     g_cs.passwordMatchPrompt = onPasswordMatchPrmpt;
+
+    if (g_cs.passwords.size() == 0)
+        g_cs.passwordEntryMode = false;
 }
 
-bool passwordModeActive()
+void passwordModeEnable(bool en)
 {
-    return g_cs.passwordMode();
+    g_cs.passwordEntryMode = en;
+}
+
+
+bool passwordModeIsEnabled()
+{
+    return g_cs.passwordEntryMode;
 }
 
 String passwordValue()
@@ -155,7 +164,7 @@ void processInput(twins::RingBuff<char> &rb)
             case Key::Up:
             case Key::Down:
                 // history inactive in password mode
-                if (g_cs.history.size() && !g_cs.passwordMode())
+                if (g_cs.history.size() && !g_cs.passwordEntryMode)
                 {
                     g_cs.historyIdx += kc.key == Key::Up ? -1 : 1;
 
@@ -243,8 +252,8 @@ void processInput(twins::RingBuff<char> &rb)
                     if (echoNlAfterCr) twins::writeChar('\n');
 
                     // append to history, limit history size;
-                    // prevents password to be stored in history
-                    if (!g_cs.passwordMode())
+                    //   prevent storing a password in the history
+                    if (!g_cs.passwordEntryMode)
                     {
                         int idx = 0;
                         if (auto *str = g_cs.history.find(g_cs.lineBuff, &idx))
@@ -267,6 +276,13 @@ void processInput(twins::RingBuff<char> &rb)
                 }
                 else
                 {
+                    if (g_cs.passwordEntryMode)
+                    {
+                        g_cs.passwordEntryMode = false;
+                        writeStr(CRLF ESC_FG_RED_INTENSE);
+                        writeStr("Password cannot be empty.");
+                        writeStr(ESC_FG_DEFAULT);
+                    }
                     prompt(true);
                 }
                 p_seq = nullptr; // suppress echo
@@ -289,7 +305,7 @@ void processInput(twins::RingBuff<char> &rb)
                 g_cs.cursorPos += 1;
 
                 // echo received character; in password mode, replace it with '*'
-                if (g_cs.passwordMode())
+                if (g_cs.passwordEntryMode)
                 {
                     p_seq = "*";
                     seq_sz = 1;
@@ -349,7 +365,7 @@ void printHelp(Argv &argv, const Cmd* pCommands)
 
             writeStr(ESC_BOLD);
             writeStr(pCommands->name);
-            writeStr(ESC_NORMAL " ");
+            pCommands->access > 0 ? writeStr(ESC_NORMAL " " TWINS_CLI_LOCK_SYMBOL " ") : writeStr(ESC_NORMAL " ");
             writeStr(pCommands->help);
             writeStr(CRLF);
             flushBuffer();
@@ -491,6 +507,26 @@ void prompt(bool newLn)
     pPAL->promptPrinted();
 }
 
+bool checkAccessGranted(uint8_t cmdAccessFlags, bool promptAccDenied, bool enterPasswMode)
+{
+    if (cmdAccessFlags == 0)
+        return true;
+
+    if ((cmdAccessFlags & accessFlags) != 0)
+        return true;
+
+    if (promptAccDenied)
+    {
+        writeStr(ESC_FG_RED_INTENSE);
+        writeStr("Access denied - enter the password: ");
+        writeStr(ESC_FG_DEFAULT);
+        flushBuffer();
+        g_cs.passwordEntryMode |= enterPasswMode;
+    }
+
+    return false;
+}
+
 bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
 {
     assert(pCommands);
@@ -517,18 +553,20 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
 
     if (!g_cs.overrideHandler)
     {
-        if (g_cs.passwordMode())
+        if (g_cs.passwordEntryMode)
         {
             if (g_cs.passwords.find(cmd))
             {
                 g_cs.passwordValue = cmd;
-                g_cs.passwords.clear();
+                g_cs.passwordEntryMode = false;
+
                 writeStr(ESC_FG_GREEN_INTENSE);
                 writeStr("Access granted." CRLF);
                 writeStr(ESC_FG_DEFAULT);
                 writeStr(g_cs.passwordMatchPrompt.cstr());
                 prompt(true);
                 flushBuffer();
+
                 g_cs.cmdQue.read();
                 return true;
             }
@@ -536,10 +574,12 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
             {
                 // writeStr(CRLF);
                 writeStr(ESC_FG_RED_INTENSE);
-                writeStr("Incorrect password, access denied.");
+                writeStr("Incorrect password - access denied.");
                 writeStr(ESC_FG_DEFAULT);
                 prompt(true);
                 flushBuffer();
+
+                g_cs.passwordEntryMode = false;
                 g_cs.cmdQue.read();
                 return true;
             }
@@ -548,12 +588,12 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
 
     Argv argv;
     tokenize(cmd, argv);
-    bool found = false;
+    bool cmd_executed = false;
 
     if (g_cs.overrideHandler)
     {
         g_cs.overrideHandler(argv);
-        found = true;
+        cmd_executed = true;
     }
     else if (argv.size() > 0 && streq(argv[0], "hist"))
     {
@@ -588,10 +628,13 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
     }
     else if (const auto *p_cmd = findCmdHandler(pCommands, argv))
     {
-        p_cmd->handler(argv);
-        found = true;
-        if (!lastCommandSet)
-            g_cs.cmdQue.read();
+        if (checkAccessGranted(p_cmd->access, true, true))
+        {
+            p_cmd->handler(argv);
+            cmd_executed = true;
+            if (!lastCommandSet)
+                g_cs.cmdQue.read();
+        }
     }
     else
     {
@@ -603,7 +646,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
         prompt(false);
 
     flushBuffer();
-    return found;
+    return cmd_executed;
 }
 
 bool execLine(const char *cmdline, const Cmd* pCommands)

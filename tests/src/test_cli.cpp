@@ -30,23 +30,28 @@ protected:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+#define CMD_ACCESS_ALL          0x00
+#define CMD_ACCESS_RESTRICTED   0x02
 
 TEST_F(CLI, commands)
 {
     static bool ver_called;
     static bool default_called;
     static char move_dir;
+    static bool do_restart;
     static const twins::cli::Cmd *p_commands = nullptr; // to solve lack of lambda captures
 
     ver_called = false;
     default_called = false;
     move_dir = 0;
+    do_restart = false;
 
     const twins::cli::Cmd commands[] =
     {
         {
             "",
             "default cmd handler",
+            // uses a default TWINS_CLI_ACCESS_UNRESTRICTED
             TWINS_CLI_HANDLER
             {
                 default_called = true;
@@ -66,6 +71,7 @@ TEST_F(CLI, commands)
         {
             "ver|V",
             "    Show SW version; alias 'V'",
+            CMD_ACCESS_ALL,
             TWINS_CLI_HANDLER
             {
                 ver_called = true;
@@ -75,6 +81,7 @@ TEST_F(CLI, commands)
         {
             "call_ver",
             "    call 'V'",
+            CMD_ACCESS_ALL,
             TWINS_CLI_HANDLER
             {
                 assert(p_commands);
@@ -85,10 +92,20 @@ TEST_F(CLI, commands)
             "move",
             "<up/dn/home>" "\r\n"
             "    Perform a move",
+            CMD_ACCESS_ALL,
             TWINS_CLI_HANDLER
             {
                 if (argv.size() >= 2)
                     move_dir = *argv[1];
+            }
+        },
+        {
+            "restart",
+            "",
+            CMD_ACCESS_RESTRICTED,
+            TWINS_CLI_HANDLER
+            {
+                do_restart = true;
             }
         },
         { /* terminator */ }
@@ -140,7 +157,22 @@ TEST_F(CLI, commands)
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(default_called);
 
-    // get history
+    // restricted command
+    {
+        twins::cli::processInput("restart" "\r\n");
+        EXPECT_FALSE(twins::cli::checkAndExec(commands));
+        EXPECT_FALSE(do_restart);
+        EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
+
+        // disable password mode and set the access flag manually
+        twins::cli::passwordModeEnable(false);
+        twins::cli::accessFlags = CMD_ACCESS_RESTRICTED;
+        twins::cli::processInput("restart" "\r\n");
+        EXPECT_TRUE(twins::cli::checkAndExec(commands));
+        EXPECT_TRUE(do_restart);
+    }
+
+    // get a history
     EXPECT_GE(twins::cli::getHistory().size(), 2);
     twins::cli::reset();
     EXPECT_EQ(twins::cli::getHistory().size(), 0);
@@ -388,11 +420,11 @@ TEST_F(CLI, passwodr_mode)
     {
         EXPECT_STREQ("", twins::cli::passwordValue().cstr());
 
-        twins::cli::passwordSet({"qwerty"});
-        EXPECT_TRUE(twins::cli::passwordModeActive());
+        twins::cli::passwordModeEnable(true);
+        EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
 
         twins::cli::passwordSet({});
-        EXPECT_FALSE(twins::cli::passwordModeActive());
+        EXPECT_FALSE(twins::cli::passwordModeIsEnabled());
     }
 
     // initializer_list<const char*>
@@ -400,18 +432,20 @@ TEST_F(CLI, passwodr_mode)
         const twins::cli::Cmd commands[] = { { /* terminator */ } };
 
         twins::cli::passwordSet({"qwerty", "po", "lelum"});
-        EXPECT_TRUE(twins::cli::passwordModeActive());
+        twins::cli::passwordModeEnable(true);
+        EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
 
         // wrong password
         twins::cli::processInput("X\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
-        EXPECT_TRUE(twins::cli::passwordModeActive());
+        EXPECT_FALSE(twins::cli::passwordModeIsEnabled());
         EXPECT_STREQ("", twins::cli::passwordValue().cstr());
 
         // correct password
         twins::cli::processInput("qwerty\r");
+        twins::cli::passwordModeEnable(true);
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
-        EXPECT_FALSE(twins::cli::passwordModeActive());
+        EXPECT_FALSE(twins::cli::passwordModeIsEnabled());
         EXPECT_STREQ("qwerty", twins::cli::passwordValue().cstr());
     }
 
@@ -422,12 +456,14 @@ TEST_F(CLI, passwodr_mode)
         twins::Vector<twins::String> passwords = {"qwerty", "po", "lelum"};
         twins::cli::passwordSet(std::move(passwords));
         EXPECT_TRUE(passwords.size() == 0);
-        EXPECT_TRUE(twins::cli::passwordModeActive());
+
+        twins::cli::passwordModeEnable(true);
+        EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
 
         // correct password
         twins::cli::processInput("lelum\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
-        EXPECT_FALSE(twins::cli::passwordModeActive());
+        EXPECT_FALSE(twins::cli::passwordModeIsEnabled());
         EXPECT_STREQ("lelum", twins::cli::passwordValue().cstr());
         EXPECT_STREQ("", twins::cli::passwordValue().cstr());
     }
