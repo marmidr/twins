@@ -41,6 +41,8 @@ public:
     void appendVFmt(const char *fmt, va_list ap);
     /** @brief Trim string that is too long to fit; optionally append ellipsis ... at the \p trimPos */
     String& trim(int16_t trimPos, bool addEllipsis = false, bool ignoreESC = false);
+    /** @brief Strip white characters from left/right */
+    String& strip(bool left = true, bool right = true);
     /** @brief Erase \p len characters from string at \p pos */
     String& erase(int16_t pos, int16_t len = 1);
     /** @brief Insert string \p s at \p pos */

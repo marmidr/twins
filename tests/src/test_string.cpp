@@ -231,6 +231,34 @@ TEST_F(STRING, trim_ignore_esc)
     EXPECT_STREQ("►" ESC_BOLD " Service" ESC_NORMAL " ", s.cstr());
 }
 
+TEST_F(STRING, strip_empty)
+{
+    twins::String s;
+    s.strip();
+    EXPECT_STREQ("", s.cstr());
+}
+
+TEST_F(STRING, strip_allwhite)
+{
+    twins::String s(" \t\r\n ");
+    s.strip();
+    EXPECT_STREQ("", s.cstr());
+}
+
+TEST_F(STRING, strip_left_right)
+{
+    twins::String s("\t  \t123 \t\t ");
+
+    s.strip(false, false);
+    EXPECT_STREQ("\t  \t123 \t\t ", s.cstr());
+
+    s.strip(true, false);
+    EXPECT_STREQ("123 \t\t ", s.cstr());
+
+    s.strip(false, true);
+    EXPECT_STREQ("123", s.cstr());
+}
+
 TEST_F(STRING, set_width)
 {
     {

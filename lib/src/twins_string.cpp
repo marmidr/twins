@@ -14,6 +14,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 #include <utility> //std::swap
 
 // -----------------------------------------------------------------------------
@@ -156,6 +157,45 @@ String& String::trim(int16_t trimPos, bool addEllipsis, bool ignoreESC)
     mpBuff[mSize] = '\0';
     if (addEllipsis && last != ' ')
         append("…");
+    return *this;
+}
+
+String& String::strip(bool left, bool right)
+{
+    if (right)
+    {
+        while (mSize > 0)
+        {
+            if (isspace(mpBuff[mSize-1]))
+            {
+                mSize--;
+                mpBuff[mSize] = '\0';
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    if (left)
+    {
+        uint16_t leftIdx = 0;
+        while (leftIdx < mSize)
+        {
+            if (isspace(mpBuff[leftIdx]))
+                leftIdx++;
+            else
+                break;
+        }
+
+        if (leftIdx > 0)
+        {
+            memmove(mpBuff, mpBuff + leftIdx, mSize - leftIdx + 1);
+            mSize -= leftIdx;
+        }
+    }
+
     return *this;
 }
 
