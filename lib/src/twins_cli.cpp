@@ -355,8 +355,14 @@ void printHelp(Argv &argv, const Cmd* pCommands)
         {
             if (pSubCmdHelp)
             {
+                // get the command name end in case of 'cmd|alias'
+                const char *name = pCommands->name;
+                const char *ename = strchr(name, '|');
+                if (!ename)
+                    ename = name + strlen(name);
+
                 // help for this single command
-                if (!streq(pSubCmdHelp, pCommands->name))
+                if (strncmp(pSubCmdHelp, name, ename-name) != 0)
                 {
                     pCommands++;
                     continue;

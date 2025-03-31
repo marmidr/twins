@@ -2,6 +2,13 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.22.0 - 2025-03-31
+
+* Added
+  * String::strip()
+* Fixed
+  * CLI: help [cmd] works for commands with aliases "ver|V"
+
 ## 0.21.0 - 2025-03-13
 
 * Changed
