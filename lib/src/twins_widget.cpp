@@ -221,10 +221,10 @@ void setCursorAt(CallCtx &ctx, const Widget *pWgt)
         }
         break;
     case Widget::CheckBox:
-        coord.col += 1;
+        //coord.col += 1;
         break;
     case Widget::Radio:
-        coord.col += 1;
+        //coord.col += 1;
         break;
     case Widget::Button:
         switch (pWgt->button.style)
@@ -261,8 +261,11 @@ void setCursorAt(CallCtx &ctx, const Widget *pWgt)
         break;
     }
     case Widget::ComboBox:
+        coord.col += pWgt->size.width - 2;
         break;
     case Widget::TextBox:
+        coord.col += 1;
+        coord.row += 1;
         break;
     default:
         break;

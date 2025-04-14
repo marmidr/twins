@@ -2,6 +2,19 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.23.0 - 2025-04-14
+
+* Added
+  * getWidgetBgColor()
+  * getWidgetFgColor()
+* Changed
+  * ComboBox uses intensified BG color, like TextEdit
+  * CheckBox, RadioButton - cursor default pos does not shadow the check state
+  * ComboBox, TextBox - cursor default position changed
+* Fixed
+  * PageControl - restore pages bg color after page is drawn
+  * List/ComboBox - corrected width when items < height
+
 ## 0.22.0 - 2025-03-31
 
 * Added

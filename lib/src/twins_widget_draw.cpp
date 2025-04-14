@@ -61,11 +61,7 @@ const char * const frame_double[] =
 static void drawWidgetInternal(CallCtx &ctx, const Widget *pWgt);
 static void drawPage(CallCtx &ctx, const Widget *pWgt, bool eraseBg = false);
 
-// -----------------------------------------------------------------------------
-// ---- TWINS PRIVATE FUNCTIONS ------------------------------------------------
-// -----------------------------------------------------------------------------
-
-static ColorBG getWidgetBgColor(const Widget *pWgt)
+ColorBG getWidgetBgColor(const Widget *pWgt)
 {
     if (!pWgt)
         return ColorBG::Default;
@@ -106,7 +102,7 @@ static ColorBG getWidgetBgColor(const Widget *pWgt)
     return getWidgetBgColor(getParent(pWgt));
 }
 
-static ColorFG getWidgetFgColor(const Widget *pWgt)
+ColorFG getWidgetFgColor(const Widget *pWgt)
 {
     if (!pWgt)
         return ColorFG::Default;
@@ -162,6 +158,10 @@ static ColorFG getWidgetFgColor(const Widget *pWgt)
 
     return getWidgetFgColor(getParent(pWgt));
 }
+
+// -----------------------------------------------------------------------------
+// ---- TWINS PRIVATE FUNCTIONS ------------------------------------------------
+// -----------------------------------------------------------------------------
 
 static void drawArea(const Coord coord, const Size size, ColorBG clBg, ColorFG clFg, const FrameStyle style, bool filled = true, bool shadow = false)
 {
@@ -641,7 +641,8 @@ static void drawPageControl(CallCtx &ctx, const Widget *pWgt)
 {
     const auto my_coord = ctx.parentCoord + pWgt->coord;
     FontMemento _m;
-    pushClBg(getWidgetBgColor(pWgt));
+    const auto clbg = getWidgetBgColor(pWgt);
+    pushClBg(clbg);
     pushClFg(getWidgetFgColor(pWgt));
     drawArea(my_coord + Coord{pWgt->pagectrl.tabWidth, 0}, pWgt->size - Size{pWgt->pagectrl.tabWidth, 0},
         ColorBG::Inherit, ColorFG::Inherit, FrameStyle::PgControl);
@@ -680,21 +681,24 @@ static void drawPageControl(CallCtx &ctx, const Widget *pWgt)
         moveTo(my_coord.col, my_coord.row + pWgt->pagectrl.vertOffs + i + 1);
 
         // for Page we do not want inherit after it's title color
-        auto clfg = p_page->page.fgColor;
-        if (clfg == ColorFG::Inherit)
-            clfg = getWidgetFgColor(p_page);
+        {
+            auto clfg = p_page->page.fgColor;
+            if (clfg == ColorFG::Inherit)
+                clfg = getWidgetFgColor(p_page);
 
-        pushClFg(clfg);
-        if (i == pg_idx) pushAttr(FontAttrib::Inverse);
-        writeStrLen(g_ws.strbuff.cstr(), g_ws.strbuff.size());
-        if (i == pg_idx) popAttr();
-        popClFg();
+            pushClFg(clfg);
+            if (i == pg_idx) pushAttr(FontAttrib::Inverse);
+            writeStrLen(g_ws.strbuff.cstr(), g_ws.strbuff.size());
+            if (i == pg_idx) popAttr();
+            popClFg();
+        }
 
         if (ctx.pState->isVisible(p_page))
         {
             flushBuffer();
             ctx.parentCoord.col += pWgt->pagectrl.tabWidth;
             drawPage(ctx, p_page);
+            writeStr(encodeCl(clbg)); // in case the bg was not restored
             ctx.parentCoord.col -= pWgt->pagectrl.tabWidth;
         }
     }
@@ -766,7 +770,8 @@ struct DrawListParams
 
 static void drawList(DrawListParams &p)
 {
-    if (p.items_cnt > p.items_visible)
+    uint8_t scrollbar_w = p.items_cnt > p.items_visible;
+    if (scrollbar_w)
     {
         drawListScrollBarV(p.coord + Coord{uint8_t(p.wgt_width-1), p.frame_size},
             p.items_visible, p.items_cnt-1, p.sel_idx);
@@ -786,12 +791,12 @@ static void drawList(DrawListParams &p)
         {
             p.getItem(p.top_item + i, g_ws.strbuff);
             g_ws.strbuff.insert(0, is_current_item ? "►" : " ");
-            g_ws.strbuff.setWidth(p.wgt_width - 1 - p.frame_size, true);
+            g_ws.strbuff.setWidth(p.wgt_width - scrollbar_w - (p.frame_size*2), true);
         }
         else
         {
             // empty string - to erase old content
-            g_ws.strbuff.setWidth(p.wgt_width - 1 - p.frame_size);
+            g_ws.strbuff.setWidth(p.wgt_width - scrollbar_w - (p.frame_size*2));
         }
 
         if (p.focused && is_sel_item) pushAttr(FontAttrib::Inverse);
@@ -841,10 +846,12 @@ static void drawComboBox(CallCtx &ctx, const Widget *pWgt)
         g_ws.strbuff.setWidth(pWgt->size.width - 4, true);
         g_ws.strbuff << (drop_down ? " [▲]" : " [▼]");
 
+        auto clbg = getWidgetBgColor(pWgt);
+        intensifyClIf(focused, clbg);
+
         moveTo(my_coord.col, my_coord.row);
         pushClFg(getWidgetFgColor(pWgt));
-        pushClBg(getWidgetBgColor(pWgt));
-        if (focused && !drop_down) pushAttr(FontAttrib::Inverse);
+        pushClBg(clbg);
         if (drop_down) pushAttr(FontAttrib::Underline);
         if (focused) pushAttr(FontAttrib::Bold);
         writeStrLen(g_ws.strbuff.cstr(), g_ws.strbuff.size());

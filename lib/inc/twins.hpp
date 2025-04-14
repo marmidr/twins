@@ -370,12 +370,6 @@ struct WidgetProp
 
         struct
         {
-            const char *txt;
-            bool lit;
-        } led;
-
-        struct
-        {
             int16_t itemIdx;
             int16_t selIdx;
         } lbx;
@@ -389,14 +383,20 @@ struct WidgetProp
 
         struct
         {
-            int32_t pos;
-            int32_t max;
-        } pgbar;
+            int16_t topLine;
+        } txtbx;
 
         struct
         {
-            int16_t topLine;
-        } txtbx;
+            const char *txt;
+            bool lit;
+        } led;
+
+        struct
+        {
+            int32_t pos;
+            int32_t max;
+        } pgbar;
     };
 
     // applies to every widget
@@ -587,6 +587,17 @@ const Widget* getWidget(const Widget *pWindowWidgets, WID widgetId);
  * @brief Return widget \p pWgt parent widget
  */
 const Widget* getWidgetParent(const Widget *pWgt);
+
+/**
+ * @brief Return widget background color; ; process the Inherit color value to get the final value
+ *        if transparent - use parent's color
+ */
+ColorBG getWidgetBgColor(const Widget *pWgt);
+
+/**
+ * @brief Return widget foreground color; process the Inherit color value to get the final value
+ */
+ColorFG getWidgetFgColor(const Widget *pWgt);
 
 /**
  * @brief Process keyboard/mouse signal received by console
