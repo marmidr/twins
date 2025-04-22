@@ -658,8 +658,9 @@ static constexpr twins::Widget pageTextboxChildren[] =
         coord   : { 3, 1 },
         size    : { 40, 10 },
         { textbox : {
-            fgColor : twins::ColorFG::White,
-            bgColor : {},
+            fgColor     : twins::ColorFG::White,
+            bgColor     : {},
+            scrollLines : 2
         }},
     },
     {

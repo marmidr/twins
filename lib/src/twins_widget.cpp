@@ -1004,7 +1004,7 @@ static bool processKey_ComboBox(CallCtx &ctx, const Widget *pWgt, const KeyCode 
 
 static bool processKey_TextBox(CallCtx &ctx, const Widget *pWgt, const KeyCode &kc)
 {
-    int delta = 0;
+    int16_t delta = 0;
     const uint16_t lines_visible = pWgt->size.height - 2;
 
     switch (kc.key)
@@ -1036,7 +1036,7 @@ static bool processKey_TextBox(CallCtx &ctx, const Widget *pWgt, const KeyCode &
         {
             top_line += delta;
 
-            if (top_line > (int)p_lines->size() - lines_visible)
+            if (top_line > (int16_t)p_lines->size() - lines_visible)
                 top_line = p_lines->size() - lines_visible;
 
             if (top_line < 0)
@@ -1346,13 +1346,15 @@ static void processMouse_TextBox(CallCtx &ctx, const Widget *pWgt, const Rect &/
 
         if (p_lines && p_lines->size())
         {
-            int delta = kc.mouse.btn == MouseBtn::WheelUp ? -1 : 1;
+            int16_t delta = pWgt->textbox.scrollLines;
+            if (!delta) delta = 1;
+            delta *= kc.mouse.btn == MouseBtn::WheelUp ? -1 : 1;
             const uint16_t lines_visible = pWgt->size.height - 2;
             if (kc.m_ctrl) delta *= lines_visible;
 
             top_line += delta;
 
-            if (top_line > (int)p_lines->size() - lines_visible)
+            if (top_line > (int16_t)p_lines->size() - lines_visible)
                 top_line = p_lines->size() - lines_visible;
 
             if (top_line < 0)

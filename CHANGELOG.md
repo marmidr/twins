@@ -6,6 +6,7 @@ See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
 * Added
   * String::replaceChar
+  * TextBox - param scrollLines
 
 ## 0.23.0 - 2025-04-14
 

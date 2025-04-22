@@ -325,6 +325,7 @@ struct Widget
         {
             ColorFG     fgColor;
             ColorBG     bgColor;
+            uint8_t     scrollLines;
         } textbox;
 
         struct
