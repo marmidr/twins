@@ -274,6 +274,21 @@ String& String::insert(int16_t pos, const char *s, int16_t repeat)
     return *this;
 }
 
+String& String::replaceChar(char replaceWhat, char replaceWith)
+{
+    if (mpBuff && mSize > 0)
+    {
+        char *pStr = mpBuff;
+        while (*pStr)
+        {
+            if (*pStr == replaceWhat)
+                *pStr = replaceWith;
+            pStr++;
+        }
+    }
+    return *this;
+}
+
 void String::setWidth(int16_t newWidth, bool addEllipsis)
 {
     if (newWidth < 0)

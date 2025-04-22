@@ -424,6 +424,30 @@ TEST_F(STRING, insert)
     }
 }
 
+TEST_F(STRING, replaceChar)
+{
+    // empty
+    {
+        twins::String s;
+        s.replaceChar('x', ' ');
+        EXPECT_STREQ("", s.cstr());
+    }
+
+    // not-empty
+    {
+        twins::String s("x");
+        s.replaceChar('x', '-');
+        EXPECT_STREQ("-", s.cstr());
+    }
+
+    // not-empty
+    {
+        twins::String s(" 123 456 xyz! ");
+        s.replaceChar(' ', '-');
+        EXPECT_STREQ("-123-456-xyz!-", s.cstr());
+    }
+}
+
 TEST_F(STRING, escLen)
 {
     EXPECT_EQ(0, twins::String::escLen(nullptr));

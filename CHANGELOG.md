@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.24.0 - 2025-04-22
+
+* Added
+  * String::replaceChar
+
 ## 0.23.0 - 2025-04-14
 
 * Added

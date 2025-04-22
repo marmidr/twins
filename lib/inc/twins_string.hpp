@@ -47,6 +47,8 @@ public:
     String& erase(int16_t pos, int16_t len = 1);
     /** @brief Insert string \p s at \p pos */
     String& insert(int16_t pos, const char *s, int16_t repeat = 1);
+    /** @brief Replaces all characters \p replaceWhat with \p replaceWith */
+    String& replaceChar(char replaceWhat, char replaceWith);
     /** @brief If shorter than \p newWidth - add spaces; if longer - calls trim */
     void setWidth(int16_t newWidth, bool addEllipsis = false);
     /** @brief Set size to zero; release buffer memory only if capacity >= \p threshordToFree */
