@@ -11,6 +11,7 @@
 #include "twins.hpp"
 #include "twins_utils.hpp"
 #include "twins_window_mngr.hpp"
+#include "twins_window_state_base.hpp"
 #include "../../lib/src/twins_widget_prv.hpp"
 
 // -----------------------------------------------------------------------------
@@ -37,14 +38,15 @@ enum WndTestIDs
         ID_TEXTBOX,
         ID_TEXTBOX_EMPTY,
         ID_COMBOBOX,
+        _ID_LAST
 };
 
-class WindowTestState : public twins::IWindowState
+class WindowTestState : public twins::WindowStateBase
 {
 public:
     void init(const twins::Widget *pWindowWgts) override
     {
-        mpWgts = pWindowWgts;
+        WindowStateBase::init(pWindowWgts);
     }
 
     const twins::Widget *getWidgets() const override { return mpWgts; }
@@ -126,7 +128,6 @@ public:
     }
 
 public:
-    const twins::Widget *mpWgts = nullptr;
     twins::WID wgtId = {};
     twins::WID clickedId = {};
     twins::util::WrappedString wrapString;
@@ -587,6 +588,33 @@ TEST_F(WIDGET, isWidgetEnabled)
     const auto *p_btn = twins::getWidget(p_wnd, ID_BTN1);
 
     EXPECT_TRUE(twins::isWidgetEnabled(p_wnd, p_btn));
+}
+
+TEST_F(WIDGET, forEachChild)
+{
+    {
+        uint16_t n = 0;
+        wndTest.forEachChild(_ID_LAST, [&n](const twins::Widget *pWgt)
+        {
+            (void)pWgt;
+            n++;
+        });
+        EXPECT_EQ(0, n);
+    }
+
+    {
+        uint16_t n = 0;
+        wndTest.forEachChild(ID_PAGE1, [&n](const twins::Widget *pWgt)
+        {
+            (void)pWgt;
+            n++;
+        });
+
+        const auto *p_page = twins::getWidget(wndTest.getWidgets(), ID_PAGE1);
+        ASSERT_NE(nullptr, p_page);
+        EXPECT_GT(n, 0);
+        EXPECT_EQ(p_page->link.childrenCnt, n);
+    }
 }
 
 TEST_F(WIDGET, processInput_Key)

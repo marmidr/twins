@@ -299,7 +299,6 @@ public:
             TWINS_LOG_D("CHBX");
             break;
         }
-
     }
 
     void onPageControlPageChange(const twins::Widget* pWgt, uint8_t newPageIdx) override
@@ -761,7 +760,7 @@ void showPopup(twins::String title, twins::String message, std::function<void(tw
 
 // -----------------------------------------------------------------------------
 
-static void gui()
+static void tui()
 {
     twins::screenClrAll();
     twins::glob::wMngr.show(getWndMain());
@@ -1023,7 +1022,7 @@ int main(int argc, char **argv)
     if (mode_cli)
         cli();
     else
-        gui();
+        tui();
 
     printf(ESC_BOLD "Memory stats: max chunks: %d, max allocated: %d B\n" ESC_NORMAL,
         ((DemoPAL&)twins::glob::pal).stats.memChunksMax,

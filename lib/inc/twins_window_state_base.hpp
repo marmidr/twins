@@ -9,7 +9,9 @@
 
 #include "twins.hpp"
 
- // -----------------------------------------------------------------------------
+#include <functional>
+
+// -----------------------------------------------------------------------------
 
 namespace twins
 {
@@ -55,6 +57,18 @@ public:
         else
         {
             TWINS_LOG_E("Window state not initialized");
+        }
+    }
+
+    /** Iterates through the direct children widgets */
+    void forEachChild(twins::WID parentID, std::function<void(const twins::Widget* pWgt)> cbk)
+    {
+        const auto *p_wnd_children = getWidgets();
+        const auto *p_parent = twins::getWidget(p_wnd_children, parentID);
+        if (p_parent)
+        {
+            for (unsigned i = p_parent->link.childrenIdx; i < p_parent->link.childrenIdx + p_parent->link.childrenCnt; i++)
+                cbk(p_wnd_children + i);
         }
     }
 
