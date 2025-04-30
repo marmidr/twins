@@ -268,7 +268,7 @@ static void drawArea(const Coord coord, const Size size, ColorBG clBg, ColorFG c
 
 static void drawListScrollBarV(const Coord coord, int height, int max, int pos)
 {
-    if (pos > max)
+    if ((pos > max) || (max == 0))
     {
         // TWINS_LOG_D("pos (%d) > max (%d)", pos, max);
         return;
@@ -280,7 +280,7 @@ static void drawListScrollBarV(const Coord coord, int height, int max, int pos)
     for (int i = 0; i < height; i++)
     {
         moveTo(coord.col, coord.row + i);
-        writeStr(i == slider_at ? "◘" : "▒");
+        writeStr(i == slider_at ? "◘" : "░");
     }
 }
 
