@@ -2,12 +2,15 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
-## 0.24.0 - 2025-04-22
+## 0.24.0 - 2025-05-26
 
 * Added
   * String::replaceChar
+  * String::trimBuff
   * TextBox - param scrollLines
   * WindowStateBase::forEachChild
+* Fixed
+  * Bug fix in the Scroolbar drawing code
 
 ## 0.23.0 - 2025-04-14
 

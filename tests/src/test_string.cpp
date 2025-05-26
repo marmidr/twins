@@ -204,6 +204,32 @@ TEST_F(STRING, trim_no_ellipsis)
     EXPECT_STREQ("► Service ", s.cstr());
 }
 
+TEST_F(STRING, trim_buff)
+{
+    {
+        // beyound text
+        twins::String s;
+        s.trimBuff(-1);
+        s.trimBuff(1);
+        EXPECT_EQ(0, s.size());
+        EXPECT_STREQ("", s.cstr());
+    }
+
+    {
+        twins::String s;
+        s.append("►45678");
+        EXPECT_EQ(8, s.size());
+
+        s.trimBuff(s.size());
+        EXPECT_EQ(8, s.size());
+
+        // inside text
+        s.trimBuff(5);
+        EXPECT_EQ(3, s.u8len());
+        EXPECT_STREQ("►45", s.cstr());
+    }
+}
+
 TEST_F(STRING, trim_ellipsis_1)
 {
     twins::String s;

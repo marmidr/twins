@@ -160,6 +160,33 @@ String& String::trim(int16_t trimPos, bool addEllipsis, bool ignoreESC)
     return *this;
 }
 
+String& String::trimBuff(int16_t trimLen)
+{
+    if (trimLen < 0 || trimLen >= mSize)
+        return *this;
+
+    uint16_t buffLen = 0;
+    char *p = mpBuff;
+
+    for (;;)
+    {
+        int seqLen = utf8seqlen(p);
+        if (seqLen <= 0) break;
+
+        if (buffLen + seqLen > trimLen)
+        {
+            *p = '\0';
+            mSize = buffLen;
+            break;
+        }
+
+        buffLen += seqLen;
+        p += seqLen;
+    }
+
+    return *this;
+}
+
 String& String::strip(bool left, bool right)
 {
     if (right)
