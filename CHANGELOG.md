@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.25.0 - 2025-06-02
+
+* Added
+  * WindowState::onBeforeShow()
+
 ## 0.24.0 - 2025-05-26
 
 * Added

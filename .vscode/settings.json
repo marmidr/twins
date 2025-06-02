@@ -82,4 +82,6 @@
     "cmake.cmakePath": "c:\\msys64\\usr\\bin\\cmake.exe",
     "cmake.buildDirectory": "${workspaceFolder}/build-vscode",
     "cmake.generator": "Unix Makefiles",
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnOpen": false
 }

@@ -29,6 +29,7 @@ public:
     virtual void init(const twins::Widget *pWindowWgts) = 0;
     virtual const twins::Widget *getWidgets() const = 0;
     // events
+    virtual void onBeforeShow() {}
     virtual void onButtonDown(const twins::Widget* pWgt, const twins::KeyCode &kc) {}
     virtual void onButtonUp(const twins::Widget* pWgt, const twins::KeyCode &kc) {}
     virtual void onButtonClick(const twins::Widget* pWgt, const twins::KeyCode &kc) {}

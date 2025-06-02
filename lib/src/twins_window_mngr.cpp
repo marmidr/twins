@@ -28,6 +28,7 @@ void WndManager::show(twins::IWindowState *pWnd, bool bringToTop)
             {
                 mWindows.remove(idx, true);
                 mWindows.append(pWnd);
+                pWnd->onBeforeShow();
                 redrawAll();
             }
         }
@@ -40,6 +41,7 @@ void WndManager::show(twins::IWindowState *pWnd, bool bringToTop)
     {
         mWindows.append(pWnd);
         twins::resetInternalState();
+        pWnd->onBeforeShow();
         twins::drawWidget(pWnd->getWidgets());
     }
 }
