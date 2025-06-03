@@ -53,6 +53,7 @@ void WndManager::hide(twins::IWindowState *pWnd)
     if (mWindows.find(pWnd, &idx))
     {
         mWindows.remove(idx);
+        twins::resetInternalState();
 
         if (mWindows.size())
         {
