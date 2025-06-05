@@ -630,7 +630,6 @@ private:
 public:
     twins::String lblKeycodeSeq;
     twins::String lblKeyName;
-    twins::Vector<twins::WID> invalidatedWgts;
     bool wndEnabled = true;
 
 private:

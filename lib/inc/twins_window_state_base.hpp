@@ -8,6 +8,7 @@
 #pragma once
 
 #include "twins.hpp"
+#include "twins_vector.hpp"
 
 #include <functional>
 
@@ -71,6 +72,9 @@ public:
                 cbk(p_wnd_children + i);
         }
     }
+
+public:
+    twins::Vector<twins::WID> invalidatedWgts;
 
 protected:
     WID mFocusedId;

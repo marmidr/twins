@@ -354,6 +354,16 @@ static constexpr WID WIDGET_ID_NONE = 0;    // convenient; default value points 
 static constexpr WID WIDGET_ID_ALL = -1;
 
 /**
+ * @brief Used to track the pagecontrol active page
+ */
+struct PgCtrl
+{
+    uint8_t    pgIdx;
+    twins::WID pgID;
+};
+
+
+/**
  * @brief Union of trivial-type widget properties;
  *      to be used like this:
  * @code.cpp
@@ -398,6 +408,8 @@ struct WidgetProp
             int32_t pos;
             int32_t max;
         } pgbar;
+
+        PgCtrl pgctrl;
     };
 
     // applies to every widget
