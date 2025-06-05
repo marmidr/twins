@@ -550,7 +550,7 @@ uint8_t decodeInputSeq(RingBuff<char> &input, KeyCode &output);
  */
 void drawWidgets(const Widget *pWindowWidgets, const WID *pWidgetIds, uint16_t count);
 
-template<int N>
+template<uint16_t N>
 inline void drawWidgets(const Widget *pWindowWidgets, const WID (&widgetIds)[N])
 {
     drawWidgets(pWindowWidgets, widgetIds, N);
@@ -616,9 +616,14 @@ bool isWidgetVisible(const Widget *pWindowWidgets, const Widget *pWgt);
 bool isWidgetEnabled(const Widget *pWindowWidgets, const Widget *pWgt);
 
 /**
- * @brief Reset internal state after top window was changed
+ * @brief Reset the TWins internal state when the top window changed
  */
 void resetInternalState(void);
+
+/**
+ * @brief Returns internal buffer used for TextEdit
+ */
+twins::String& getTextEditStr();
 
 /**
  * @brief Checks if point is withing rectangle

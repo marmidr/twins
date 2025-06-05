@@ -1633,6 +1633,11 @@ void resetInternalState()
     g_ws.textEditState.pWgt = nullptr;
 }
 
+twins::String& getTextEditStr()
+{
+    return g_ws.textEditState.txt;
+}
+
 // -----------------------------------------------------------------------------
 
 namespace wgt
