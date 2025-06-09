@@ -83,5 +83,6 @@
     "cmake.buildDirectory": "${workspaceFolder}/build-vscode",
     "cmake.generator": "Unix Makefiles",
     "cmake.automaticReconfigure": false,
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "cmake.configureOnEdit": false
 }

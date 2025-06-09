@@ -35,7 +35,7 @@ public:
     /** @brief Append \p repeat of given characters \p c */
     String& append(char c, int16_t repeat = 1);
     /** @brief Append new string \p s */
-    inline String& append(const String &s) { return append(s.cstr()); }
+    String& append(const String &s) { return append(s.cstr()); }
     /** @brief Append formatted string */
     String& appendFmt(const char *fmt, ...);
     void appendVFmt(const char *fmt, va_list ap);
@@ -110,7 +110,7 @@ protected:
 class StringBuff : public String
 {
 public:
-    StringBuff() = default;
+    StringBuff() {}
     StringBuff(const char *s) : String(s) {}
     StringBuff(const StringBuff&) = delete;
     StringBuff(StringBuff&&) = delete;

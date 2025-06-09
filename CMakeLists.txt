@@ -16,19 +16,35 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
     # specify the C++ standard
     set(CMAKE_CXX_STANDARD  14)
     set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-    # C++ flags
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wmissing-include-dirs -Wshadow -Wextra")
+
+    # local C++ flags (list, not string)
+    # https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Warning-Options.html#Warning-Options
+    set(CXX_FLAGS -Wall
+        -Wcast-align
+        # -Wcast-qual
+        -Wextra
+        # -Winline # genereates warnings on higher optimization levels
+        -Wmissing-include-dirs
+        -Wredundant-decls
+        -Wshadow
+        -Wunused-parameter
+        -Wwrite-strings
+    )
+
     # https://stackoverflow.com/questions/10046114/in-cmake-how-can-i-test-if-the-compiler-is-clang
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-designator")
+        list(APPEND CXX_FLAGS -Wno-gnu-designator)
     endif()
 
     if (NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
     endif()
+
+    # message("CXX_FLAGS => ${CXX_FLAGS}")
 else()
     # message("I am called from other project with add_subdirectory().")
 endif()

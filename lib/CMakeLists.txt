@@ -14,21 +14,27 @@ set(TARGETNAME twins)
 
 add_library(${TARGETNAME} STATIC
     src/twins.cpp
-    src/twins_colors.cpp
-    src/twins_widget.cpp
-    src/twins_widget_draw.cpp
-    src/twins_utf8str.cpp
-    src/twins_string.cpp
-    src/twins_input_posix.cpp
     src/twins_ansi_esc_decoder.cpp
-    src/twins_utils.cpp
-    src/twins_window_mngr.cpp
     src/twins_cli.cpp
+    src/twins_colors.cpp
+    src/twins_input_posix.cpp
+    src/twins_string.cpp
+    src/twins_utf8str.cpp
+    src/twins_utils.cpp
+    src/twins_widget_draw.cpp
+    src/twins_widget.cpp
+    src/twins_window_mngr.cpp
 )
 
 target_include_directories(${TARGETNAME}
     PUBLIC
         inc
+)
+
+target_compile_options(${TARGETNAME}
+    PRIVATE
+        ${CXX_FLAGS}
+        -Wcast-qual
 )
 
 # FIXME: causes problems when used with VSCode

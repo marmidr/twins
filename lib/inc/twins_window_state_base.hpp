@@ -21,6 +21,9 @@ namespace twins
 class WindowStateBase : public IWindowState
 {
 public:
+    WindowStateBase() {}
+    ~WindowStateBase() {}
+
     void init(const twins::Widget* pWindowWgts) override
     {
         mFocusedId = WIDGET_ID_NONE;

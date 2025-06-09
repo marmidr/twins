@@ -32,6 +32,9 @@ namespace twins::cli
 
 struct CliState
 {
+    CliState() {}
+    ~CliState() {}
+
     String          lineBuff;
     History         history;
     int16_t         cursorPos = 0;

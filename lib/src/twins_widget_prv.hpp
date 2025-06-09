@@ -26,6 +26,9 @@ struct WidgetSearchStruct
 /** Widget drawing state object */
 struct WidgetState
 {
+    WidgetState() {}
+    ~WidgetState() {}
+
     String strbuff;                     // common string buff for widget drawers
     const Widget *pFocusedWgt = {};     //
     const Widget *pMouseDownWgt = {};   //

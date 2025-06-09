@@ -52,12 +52,17 @@ twins::Vector<twins::CStrView> splitLines(const char *str);
  */
 twins::String centerText(const char *str, uint16_t areaWidth);
 
+/** @brief Default twins::Edit key handler for NumEdit */
+bool numEditInputEvt(const twins::KeyCode &kc, twins::String &str, int16_t &cursorPos,
+                    int64_t limitMin = LONG_MIN, int64_t limitMax = LONG_MAX, bool wrap = false);
+
 // -----------------------------------------------------------------------------
 
 /** @brief String helper holding text wrapped and splitted into lines */
 struct WrappedString
 {
-    WrappedString() = default;
+    WrappedString();
+    ~WrappedString();
 
     /**
      * @brief Set maximum width the individual line will never break;
@@ -65,77 +70,34 @@ struct WrappedString
      * @param delim characters that the line can break at
      * @param sep lines separator
      */
-    void config(uint16_t maxWidth = 250, const char* delim = " \t\n", const char* sep = "\n")
-    {
-        mMaxWidth = maxWidth;
-        if (delim) mpDelim = delim;
-        if (sep) mpSep = sep;
-        mDirty = true;
-    }
+    void config(uint16_t maxWidth = 250, const char* delim = " \t\n", const char* sep = "\n");
 
     /**
      * @brief Parse input string and wrap it
      * @param newContent optional new content; can be null if the same content is to be used with new wrapping configuration
      */
-    void updateLines(const char *newContent = nullptr)
-    {
-        if (newContent)
-        {
-            mSourceStr.clear();
-            mSourceStr.append(newContent);
-        }
-        mWrappedStr = wordWrap(mSourceStr.cstr(), mMaxWidth, mpDelim, mpSep);
-        mLines = splitLines(mWrappedStr.cstr());
-        mDirty = false;
-    }
+    void updateLines(const char *newContent = nullptr);
 
     /** @brief Returns vector of lines */
-    const Vector<CStrView>& getLines()
-    {
-        if (mDirty)
-            updateLines();
-        return mLines;
-    }
+    const Vector<CStrView>& getLines();
 
     /** @brief Returns reference to source string */
-    String& getSourceStr()
-    {
-        return mSourceStr;
-    }
+    String& getSourceStr() { return mSourceStr; }
 
     /** @brief Returns reference to wrapped string */
-    const String& getWrappedStr() const
-    {
-        return mWrappedStr;
-    }
+    const String& getWrappedStr() const { return mWrappedStr; }
 
     /** @brief Returns true if source or configuration was changed so the wrapped string is deprecated */
     bool isDirty() const { return mDirty; }
 
     /** @brief Assignment operator */
-    WrappedString& operator =(const char *str)
-    {
-        mLines.clear();
-        mSourceStr = str;
-        mDirty = true;
-        return *this;
-    }
+    WrappedString& operator =(const char *str);
 
     /** @brief Assignment operator */
-    WrappedString& operator =(const String &other)
-    {
-        *this = other.cstr();
-        return *this;
-    }
+    WrappedString& operator =(const String &other);
 
     /** @brief Assignment operator */
-    WrappedString& operator =(String &&other)
-    {
-        mLines.clear();
-        mSourceStr = std::move(other);
-        mDirty = true;
-        return *this;
-    }
+    WrappedString& operator =(String &&other);
 
 private:
     bool        mDirty = false;
@@ -146,12 +108,6 @@ private:
     String      mWrappedStr;
     Vector<CStrView> mLines;
 };
-
-// -----------------------------------------------------------------------------
-
-/** @brief Default twins::Edit key handler for NumEdit */
-bool numEditInputEvt(const twins::KeyCode &kc, twins::String &str, int16_t &cursorPos,
-                    int64_t limitMin = LONG_MIN, int64_t limitMax = LONG_MAX, bool wrap = false);
 
 // -----------------------------------------------------------------------------
 

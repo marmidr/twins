@@ -24,6 +24,7 @@ target_link_libraries(${TARGETNAME}
 
 target_compile_options(${TARGETNAME}
     PRIVATE
+        ${CXX_FLAGS}
         -Wno-unused-parameter
         -Wno-missing-field-initializers
 )

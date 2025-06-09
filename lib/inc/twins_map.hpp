@@ -233,7 +233,7 @@ private:
     }
 
     template<typename Key>
-    inline bool keysEqual(Key k1, Key k2, std::true_type) const
+    inline bool keysEqual(const Key k1, const Key k2, std::true_type) const
     {
         return strcmp(k1, k2) == 0;
     }

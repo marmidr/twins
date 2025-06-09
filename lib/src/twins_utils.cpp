@@ -287,4 +287,66 @@ bool numEditInputEvt(const twins::KeyCode &kc, twins::String &str, int16_t &curs
 
 // -----------------------------------------------------------------------------
 
+WrappedString::WrappedString()
+{}
+
+WrappedString::~WrappedString()
+{}
+
+void WrappedString::config(uint16_t maxWidth, const char* delim, const char* sep)
+{
+    mMaxWidth = maxWidth;
+    if (delim)
+        mpDelim = delim;
+    if (sep)
+        mpSep = sep;
+    mDirty = true;
+}
+
+void WrappedString::updateLines(const char *newContent)
+{
+    if (newContent)
+    {
+        mSourceStr.clear();
+        mSourceStr.append(newContent);
+    }
+    mWrappedStr = wordWrap(mSourceStr.cstr(), mMaxWidth, mpDelim, mpSep);
+    mLines = splitLines(mWrappedStr.cstr());
+    mDirty = false;
+}
+
+const Vector<CStrView>& WrappedString::getLines()
+{
+    if (mDirty)
+        updateLines();
+    return mLines;
+}
+
+/** @brief Assignment operator */
+WrappedString& WrappedString::operator =(const char *str)
+{
+    mLines.clear();
+    mSourceStr = str;
+    mDirty = true;
+    return *this;
+}
+
+/** @brief Assignment operator */
+WrappedString& WrappedString::operator =(const String &other)
+{
+    *this = other.cstr();
+    return *this;
+}
+
+/** @brief Assignment operator */
+WrappedString& WrappedString::operator =(String &&other)
+{
+    mLines.clear();
+    mSourceStr = std::move(other);
+    mDirty = true;
+    return *this;
+}
+
+// -----------------------------------------------------------------------------
+
 } // twins::util

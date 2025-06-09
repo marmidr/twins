@@ -31,14 +31,18 @@ struct StubPAL : twins::IPal
     void flushBuff() override {}
     void setLogging(bool) override {}
     void promptPrinted() override {}
+    //
     void* memAlloc(uint32_t) override { assert(!"PAL not set"); return nullptr; }
     void memFree(void *) override {}
+    //
     void sleep(uint16_t) override {}
     uint16_t getLogsRow() override { return 0; }
     uint32_t getTimeStamp() override { return 0; }
     uint32_t getTimeDiff(uint32_t) override { return 0; }
+    //
     bool lock(bool) override { return true; }
     void unlock() override {}
+    //
     void wgtDrawBegin(const void *) override {}
     void wgtDrawEnd(const void *) override {}
 };
@@ -51,6 +55,9 @@ IPal *pPAL = &stubPal;
 /** Local state */
 struct TwinsState
 {
+    TwinsState() {}
+    ~TwinsState() {}
+
     /** @brief Current font colors and attributes */
     ColorFG currentClFg = ColorFG::Default;
     ColorBG currentClBg = ColorBG::Default;

@@ -22,6 +22,7 @@ add_executable(${TARGETNAME}
 )
 
 target_compile_options(${TARGETNAME} PRIVATE
+    ${CXX_FLAGS}
     --coverage
     ${GCC_SANITIZERS}
 )
