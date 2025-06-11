@@ -811,8 +811,13 @@ static void drawListBox(CallCtx &ctx, const Widget *pWgt)
 {
     FontMemento _m;
     const auto my_coord = ctx.parentCoord + pWgt->coord;
+
+    bool focused = ctx.pState->isFocused(pWgt);
+    auto clbg = getWidgetBgColor(pWgt);
+    intensifyClIf(focused, clbg);
+
     drawArea(my_coord, pWgt->size,
-        pWgt->listbox.bgColor, pWgt->listbox.fgColor,
+        clbg, pWgt->listbox.fgColor,
         pWgt->listbox.noFrame ? FrameStyle::None : FrameStyle::ListBox, false);
 
     if (pWgt->size.height < 3)

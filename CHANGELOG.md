@@ -2,11 +2,12 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
-## 0.25.0 - 2025-06-05
+## 0.25.0 - 2025-06-11
 
 * Added
   * IWindowState::onBeforeShow()
   * WindowStateBase::invalidatedWgts
+  * Listbox - uses intense bg color when focused
 * Fixed
   * Bug in WndManager::hide() - the TWins internal state must be reset to not bring
     the widgets edit-mode from popup to the underlying window

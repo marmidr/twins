@@ -36,6 +36,7 @@ enum class ThemeBG : uint8_t
     ThemeBegin = (uint8_t)twins::ColorBG::ThemeBegin,
     Window,
     Listbox,
+    ListboxIntense,
     Button,
     ButtonGreen,
     ButtonRed,
@@ -94,7 +95,8 @@ const char* encodeClTheme(ColorBG cl)
     switch (ThemeBG(cl))
     {
     case ThemeBG::Window:           return ESC_BG_MidnightBlue;
-    case ThemeBG::Listbox:          return ESC_BG_WHITE;
+    case ThemeBG::Listbox:          return ESC_BG_DarkGray;
+    case ThemeBG::ListboxIntense:   return ESC_BG_WHITE_INTENSE;
     case ThemeBG::Button:           return ESC_BG_BLACK_INTENSE;
     case ThemeBG::ButtonGreen:      return ESC_BG_OliveDrab;
     case ThemeBG::ButtonRed:        return ESC_BG_RED;
@@ -131,6 +133,7 @@ ColorBG intensifyClTheme(ColorBG cl)
     {
     case ThemeBG::Edit1:            return from(ThemeBG::Edit1Intense);
     case ThemeBG::Edit2:            return from(ThemeBG::Edit2Intense);
+    case ThemeBG::Listbox:          return from(ThemeBG::ListboxIntense);
     default:                        return cl;
     }
 }
@@ -396,7 +399,7 @@ static constexpr twins::Widget pageServiceChildren[] =
                 size    : { 20, 8 },
                 { listbox : {
                     fgColor : twins::ColorFG::Green,
-                    bgColor : twins::ColorBG::White,
+                    bgColor : from(ThemeBG::Listbox),
                     noFrame : false
                 }}
             },
