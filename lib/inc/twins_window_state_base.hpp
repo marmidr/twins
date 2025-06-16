@@ -47,16 +47,25 @@ public:
 
     void invalidateImpl(const twins::WID *pId, uint16_t count, bool instantly) override
     {
-        (void)instantly;
-
         if (count == 1 && *pId == twins::WIDGET_ID_NONE)
+        {
+            invalidatedWgts.resize(0); // resize do not free memory if small chunk allocated
             return;
+        }
+
+        for (uint16_t i = 0; i < count; i++)
+            if (!invalidatedWgts.contains(pId[i]))
+                invalidatedWgts.append(pId[i]);
 
         // state or focus changed - widget must be repainted
         if (getWidgets())
         {
-            twins::drawWidgets(getWidgets(), pId, count);
-            twins::flushBuffer();
+            if (instantly)
+            {
+                twins::drawWidgets(getWidgets(), invalidatedWgts.data(), invalidatedWgts.size());
+                invalidatedWgts.resize(0);
+                twins::flushBuffer();
+            }
         }
         else
         {

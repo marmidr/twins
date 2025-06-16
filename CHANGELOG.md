@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.26.0 - 2025-06-16
+
+* Changed
+  * WindowStateBase::invalidateImpl() updated - taken from demo, operates on invalidatedWgts
+
 ## 0.25.0 - 2025-06-11
 
 * Added

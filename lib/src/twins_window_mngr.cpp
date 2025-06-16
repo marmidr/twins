@@ -57,6 +57,10 @@ void WndManager::hide(twins::IWindowState *pWnd)
 
         if (mWindows.size())
         {
+            // TODO: from the new top-window invalidate only as mutch as required, not the entire window
+            // take the widget under lef-top corner; check if widget size > 0 popup; if so - invalidate.
+            // if not - check it's parent, and so on.
+            // if the parent is Layer - skip and get it's parent
             redrawAll();
         }
         else

@@ -605,28 +605,6 @@ public:
         }
     }
 
-private:
-    void invalidateImpl(const twins::WID *pId, uint16_t count, bool instantly) override
-    {
-        if (count == 1 && *pId == twins::WIDGET_ID_NONE)
-        {
-            invalidatedWgts.resize(0); // resize do not free memory if small chunk allocated
-            return;
-        }
-
-        // state or focus changed - widget must be repainted
-
-        for (uint16_t i = 0; i < count; i++)
-            if (!invalidatedWgts.contains(pId[i]))
-                invalidatedWgts.append(pId[i]);
-
-        if (instantly)
-        {
-            WindowStateBase::invalidateImpl(invalidatedWgts.data(), invalidatedWgts.size(), true);
-            invalidatedWgts.resize(0);
-        }
-    }
-
 public:
     twins::String lblKeycodeSeq;
     twins::String lblKeyName;
