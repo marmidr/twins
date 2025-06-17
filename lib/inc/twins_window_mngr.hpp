@@ -17,43 +17,43 @@
 namespace twins
 {
 
-/** @brief struct holding window stack */
+/** @brief Struct holding windows' state stack */
 class WndManager
 {
 public:
     ~WndManager() { /* printf("~WndManager()\n");*/ }
 
-    /** @brief show \p pWnd if not visible */
-    void show(twins::IWindowState *pWnd, bool bringToTop = false);
+    /** @brief show \p pWndState if not visible */
+    void show(twins::IWindowState *pWndState, bool bringToTop = false);
 
-    /** @brief hide window */
-    void hide(twins::IWindowState *pWnd);
+    /** @brief hide the \p pWndState window, redrawing the content underneath */
+    void hide(twins::IWindowState *pWndState, bool redrawAllWindows = false);
 
-    /** @brief return top window */
+    /** @brief returns the top window; throw assertion if the list is empty */
     twins::IWindowState *topWnd()
     {
-        assert(mWindows.size());
-        return *mWindows.back();
+        assert(mWndStates.size());
+        return *mWndStates.back();
     }
 
     /** @brief check if given window is on the list */
-    bool visible(twins::IWindowState *pWnd) const;
+    bool visible(twins::IWindowState *pWndState) const;
 
-    /** @brief return top window widgets or nullptr */
+    /** @brief return the top window widgets or nullptr */
     const twins::Widget* topWndWidgets();
 
     /** @brief number of windows on stack */
-    unsigned size() const { return mWindows.size(); }
+    unsigned size() const { return mWndStates.size(); }
 
-    /** @brief redraw windows from bottom to top */
+    /** @brief redraw all windows from bottom to top */
     void redrawAll();
 
     /** all windows iterator */
-    auto begin() { return mWindows.begin(); }
-    auto end()   { return mWindows.end(); }
+    auto begin() { return mWndStates.begin(); }
+    auto end()   { return mWndStates.end(); }
 
 private:
-    twins::Vector<twins::IWindowState*> mWindows;
+    twins::Vector<twins::IWindowState*> mWndStates;
 };
 
 // -----------------------------------------------------------------------------

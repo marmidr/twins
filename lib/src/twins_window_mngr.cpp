@@ -14,54 +14,65 @@ namespace twins
 
 // -----------------------------------------------------------------------------
 
-void WndManager::show(twins::IWindowState *pWnd, bool bringToTop)
+void WndManager::show(twins::IWindowState *pWndState, bool bringToTop)
 {
     int idx = -1;
 
-    if (mWindows.find(pWnd, &idx))
+    if (mWndStates.find(pWndState, &idx))
     {
         // is on the list
-        if (idx < (int)(mWindows.size())-1)
+        if (idx < (int)(mWndStates.size())-1)
         {
             // ...and is not on top
             if (bringToTop)
             {
-                mWindows.remove(idx, true);
-                mWindows.append(pWnd);
-                pWnd->onBeforeShow();
+                mWndStates.remove(idx, true);
+                mWndStates.append(pWndState);
+                pWndState->onBeforeShow();
                 redrawAll();
             }
         }
         else
         {
-            twins::drawWidget(pWnd->getWidgets());
+            twins::drawWidget(pWndState->getWidgets());
         }
     }
-    else if (pWnd)
+    else if (pWndState)
     {
-        mWindows.append(pWnd);
+        mWndStates.append(pWndState);
         twins::resetInternalState();
-        pWnd->onBeforeShow();
-        twins::drawWidget(pWnd->getWidgets());
+        pWndState->onBeforeShow();
+        twins::drawWidget(pWndState->getWidgets());
     }
 }
 
-void WndManager::hide(twins::IWindowState *pWnd)
+void WndManager::hide(twins::IWindowState *pWndState, bool redrawAllWindows)
 {
     int idx = -1;
 
-    if (mWindows.find(pWnd, &idx))
+    if (mWndStates.find(pWndState, &idx))
     {
-        mWindows.remove(idx);
+        twins::Rect popup_rect = {
+            .coord = twins::getScreenCoord(pWndState->getWidgets()),
+            .size = pWndState->getWidgets()->size
+        };
+
+        mWndStates.remove(idx);
         twins::resetInternalState();
 
-        if (mWindows.size())
+        if (mWndStates.size())
         {
-            // TODO: from the new top-window invalidate only as mutch as required, not the entire window
-            // take the widget under lef-top corner; check if widget size > 0 popup; if so - invalidate.
-            // if not - check it's parent, and so on.
-            // if the parent is Layer - skip and get it's parent
-            redrawAll();
+            if (redrawAllWindows)
+            {
+                redrawAll();
+            }
+            else
+            {
+                if (auto p_wgt = twins::findCoveringWidget(topWnd()->getWidgets(), popup_rect))
+                    topWnd()->invalidate(p_wgt->id);
+                else
+                    redrawAll();
+            }
         }
         else
         {
@@ -71,23 +82,23 @@ void WndManager::hide(twins::IWindowState *pWnd)
     }
 }
 
-bool WndManager::visible(twins::IWindowState *pWnd) const
+bool WndManager::visible(twins::IWindowState *pWndState) const
 {
-    return pWnd ? mWindows.contains(pWnd) : false;
+    return pWndState ? mWndStates.contains(pWndState) : false;
 }
 
 const twins::Widget* WndManager::topWndWidgets()
 {
-    return mWindows.size() ? topWnd()->getWidgets() : nullptr;
+    return mWndStates.size() ? topWnd()->getWidgets() : nullptr;
 }
 
 void WndManager::redrawAll()
 {
-    for (auto p_wnd : mWindows)
+    for (auto p_wstate : mWndStates)
     {
-        twins::drawWidget(p_wnd->getWidgets());
+        twins::drawWidget(p_wstate->getWidgets());
         // signal that invalidate list must be cleared
-        p_wnd->invalidate(WIDGET_ID_NONE);
+        p_wstate->invalidate(WIDGET_ID_NONE);
     }
 
     twins::flushBuffer();

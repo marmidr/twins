@@ -47,6 +47,7 @@ struct CallCtx
     CallCtx(const Widget* pWindowWidgets)
     {
         assert(pWindowWidgets);
+        // first widget must be a window
         assert(pWindowWidgets->type == Widget::Window);
         pWidgets = pWindowWidgets;
         pState = pWindowWidgets->window.getState();

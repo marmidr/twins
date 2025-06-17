@@ -392,7 +392,8 @@ static bool isFocusable(CallCtx &ctx, const WID widgetId)
     return false;
 }
 
-static const Widget* getNextFocusable(CallCtx &ctx, const Widget *pParent, WID focusedID, bool forward, const Widget *pFirstParent = nullptr, bool *pBreak = nullptr)
+static const Widget* getNextFocusable(CallCtx &ctx, const Widget *pParent, WID focusedID, bool forward,
+                                    const Widget *pFirstParent = nullptr, bool *pBreak = nullptr)
 {
     bool brk = false;
 
@@ -1509,6 +1510,9 @@ const char * toString(Widget::Type type)
 
 Coord getScreenCoord(const Widget *pWgt)
 {
+    if (!pWgt)
+        return {};
+
     Coord coord = pWgt->coord;
     if (pWgt->type == Widget::Type::Window)
         pWgt->window.getState()->getWindowCoord(pWgt, coord);
@@ -1636,6 +1640,44 @@ void resetInternalState()
 twins::String& getTextEditStr()
 {
     return g_ws.textEditState.txt;
+}
+
+const Widget *findCoveringWidget(const Widget *pWindowWidgets, twins::Rect screenRect)
+{
+    CallCtx ctx(pWindowWidgets);
+
+    Rect wgt_screen_rct;
+
+    if (const Widget *p_wgt = getWidgetAt(ctx, screenRect.coord.col, screenRect.coord.row, wgt_screen_rct))
+    {
+        while (p_wgt)
+        {
+            if (p_wgt->type == Widget::Window)
+                return p_wgt;
+
+            if (p_wgt->type != Widget::Layer)
+                if (isRectWithin(screenRect, wgt_screen_rct))
+                    return p_wgt;
+
+            p_wgt = getWidgetParent(p_wgt);
+            if (p_wgt)
+            {
+                wgt_screen_rct.coord = getScreenCoord(p_wgt);
+                wgt_screen_rct.size = p_wgt->size;
+
+                if (p_wgt->type == Widget::Page)
+                {
+                    // page coord is always 0,0, but it is corrected by getScreenCoord
+                    // page size is always 0,0
+                    auto p_pagectrl = getWidgetParent(p_wgt);
+                    wgt_screen_rct.size.width = p_pagectrl->size.width - p_pagectrl->pagectrl.tabWidth;
+                    wgt_screen_rct.size.height = p_pagectrl->size.height;
+                }
+            }
+        }
+    }
+
+    return {};
 }
 
 // -----------------------------------------------------------------------------

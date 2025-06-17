@@ -4,6 +4,8 @@ See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.26.0 - 2025-06-16
 
+* Added
+  * twins::findCoveringWidget() - now the WndManager::hide() redraw only neccessary part of the underlying window
 * Changed
   * WindowStateBase::invalidateImpl() updated - taken from demo, operates on invalidatedWgts
 

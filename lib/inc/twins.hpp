@@ -647,6 +647,12 @@ bool isPointWithin(uint8_t col, uint8_t row, const Rect& r);
  */
 bool isRectWithin(const Rect& i, const Rect& e);
 
+/**
+ * @brief Finds a widget on \p pWindowWidgets list which entirely covers the \p screenRect
+ * @retval pointer on \b nullptr
+ */
+const Widget *findCoveringWidget(const Widget *pWindowWidgets, twins::Rect screenRect);
+
 // -----------------------------------------------------------------------------
 
 /** Functions related to particular widget types */
