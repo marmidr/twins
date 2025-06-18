@@ -90,7 +90,9 @@ TEST(VECTOR, mv_assign)
     EXPECT_EQ(0, v1.capacity());
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-move"
+#if __GNUC__ >= 13
+# pragma GCC diagnostic ignored "-Wself-move"
+#endif
     v2 = std::move(v2);
 #pragma GCC diagnostic pop
 

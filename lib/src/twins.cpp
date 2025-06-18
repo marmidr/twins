@@ -17,17 +17,23 @@
 // -----------------------------------------------------------------------------
 
 #ifndef TWINS_PRECISE_TIMESTAMP
- #define TWINS_PRECISE_TIMESTAMP    0
+# define TWINS_PRECISE_TIMESTAMP    0
 #endif
 
 namespace twins
 {
 struct StubPAL : twins::IPal
 {
+    ~StubPAL()
+    {
+        fprintf(stderr, "~StubPAL\n");
+    }
+
     int writeChar(char, int16_t) override { return 0; }
     int writeStr(const char *, int16_t) override { return 0; }
     int writeStrLen(const char *, uint16_t) override { return 0; }
     int writeStrVFmt(const char *, va_list) override { return 0; }
+    //
     void flushBuff() override {}
     void setLogging(bool) override {}
     void promptPrinted() override {}

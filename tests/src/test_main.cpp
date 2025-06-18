@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 // -----------------------------------------------------------------------------
 
@@ -33,12 +34,15 @@ struct TestPAL : twins::DefaultPAL
         // call once to test no-pal version of log()
         twins::log(nullptr, __FILE__, __LINE__, nullptr, nullptr);
         twins::log(nullptr, __FILE__, __LINE__, nullptr, "");
+        // self-register:
         twins::init(this);
     }
 
     ~TestPAL()
     {
+        fprintf(stderr, "~TestPAL\n");
         deinit();
+        // replaces this pal with the dummy one - cause mem leaks
         twins::deinit();
     }
 
@@ -54,8 +58,6 @@ struct TestPAL : twins::DefaultPAL
         }
     }
 };
-
-TestPAL test_pal;
 
 // -----------------------------------------------------------------------------
 
@@ -73,9 +75,17 @@ int main(int argc, char **argv)
 
     argc = vargs.size();
     testing::InitGoogleTest(&argc, vargs.data());
-    twins::mouseMode(twins::MouseMode::M1);
-    int rc = RUN_ALL_TESTS();
-    twins::mouseMode(twins::MouseMode::Off);
-    fprintf(stderr, "\n*** Tests finished ***\n");
+
+    int rc{};
+
+    {
+        auto test_pal = std::make_unique<TestPAL>();
+        twins::mouseMode(twins::MouseMode::M1);
+        rc = RUN_ALL_TESTS();
+        twins::mouseMode(twins::MouseMode::Off);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "*** Tests finished ***\n");
+    }
+
     return rc;
 }

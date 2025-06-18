@@ -34,6 +34,9 @@ namespace twins
 
 struct DefaultPAL : public twins::IPal
 {
+    DefaultPAL() {}
+    ~DefaultPAL() {}
+
     int writeChar(char c, int16_t repeat) override
     {
         auto sz = lineBuff.size();

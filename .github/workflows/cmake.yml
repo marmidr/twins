@@ -34,6 +34,11 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTWINS_USE_SANITIZERS=OFF -DTWINS_BUILD_UT=ON -DTWINS_SEPARATE_TESTS=OFF
 
+    - name: GCC symbols
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --target print_preprocessor_symbols
+
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash

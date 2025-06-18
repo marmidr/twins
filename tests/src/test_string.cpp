@@ -356,9 +356,11 @@ TEST_F(STRING, move_assign)
     twins::String s1;
     s1 = "Menu";
 
-    // such try shall fail
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-move"
+#if __GNUC__ >= 13
+# pragma GCC diagnostic ignored "-Wself-move"
+#endif
+    // such a try shall fail
     s1 = std::move(s1);
 #pragma GCC diagnostic pop
 

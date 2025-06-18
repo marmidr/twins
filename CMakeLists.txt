@@ -100,3 +100,9 @@ endif()
 if (TWINS_BUILD_UT)
     add_subdirectory(tests)
 endif()
+
+#
+add_custom_target(print_preprocessor_symbols
+    COMMAND echo "~~ g++ preprocessor symbols:"
+    COMMAND echo | g++ -dM -E -x c++ -
+)

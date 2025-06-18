@@ -14,6 +14,8 @@
 #include "twins_window_state_base.hpp"
 #include "../../lib/src/twins_widget_prv.hpp"
 
+#include <memory>
+
 // -----------------------------------------------------------------------------
 
 enum WndTestIDs
@@ -44,6 +46,9 @@ enum WndTestIDs
 class WindowTestState : public twins::WindowStateBase
 {
 public:
+    ~WindowTestState()
+    {}
+
     void init(const twins::Widget *pWindowWgts) override
     {
         WindowStateBase::init(pWindowWgts);
@@ -136,9 +141,8 @@ public:
 };
 
 
-static WindowTestState wndTest;
-twins::IWindowState * getWndTest();
-
+std::unique_ptr<WindowTestState> pWndTestState;
+twins::IWindowState * getIWndTestState();
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -154,7 +158,7 @@ static constexpr twins::Widget wndTestDef =
         fgColor     : {},
         bgColor     : {},
         isPopup     : true, // draw shadow
-        getState    : getWndTest,
+        getState    : getIWndTestState,
     }},
     link    : { (const twins::Widget[])
     {
@@ -375,10 +379,20 @@ static constexpr twins::Widget wndTestDef =
 constexpr auto wndTestWidgets = twins::transforWindowDefinition<&wndTestDef>();
 const twins::Widget * pWndTestWidgets = wndTestWidgets.begin();
 
-twins::IWindowState * getWndTest()
+WindowTestState * getWndTestState()
 {
-    wndTest.init(pWndTestWidgets);
-    return &wndTest;
+    if (!pWndTestState)
+    {
+        pWndTestState = std::make_unique<WindowTestState>();
+        pWndTestState->init(pWndTestWidgets);
+    }
+
+    return pWndTestState.get();
+}
+
+twins::IWindowState * getIWndTestState()
+{
+    return getWndTestState();
 }
 
 // -----------------------------------------------------------------------------
@@ -393,6 +407,7 @@ protected:
     void TearDown() override
     {
         twins::flushBuffer();
+        pWndTestState.reset();
     }
 };
 
@@ -477,19 +492,19 @@ TEST_F(WIDGET, wndManager)
 
     EXPECT_EQ(0, wmngr.size());
     EXPECT_EQ(nullptr, wmngr.topWndWidgets());
-    EXPECT_FALSE(wmngr.visible(getWndTest()));
+    EXPECT_FALSE(wmngr.visible(getWndTestState()));
 
     wmngr.show(nullptr);
-    wmngr.show(getWndTest());
-    wmngr.show(getWndTest());
+    wmngr.show(getWndTestState());
+    wmngr.show(getWndTestState());
     EXPECT_EQ(1, wmngr.size());
-    EXPECT_TRUE(wmngr.visible(getWndTest()));
-    EXPECT_EQ(getWndTest(), wmngr.topWnd());
+    EXPECT_TRUE(wmngr.visible(getWndTestState()));
+    EXPECT_EQ(getWndTestState(), wmngr.topWnd());
 
     wmngr.redrawAll();
     wmngr.hide(nullptr);
-    wmngr.hide(getWndTest());
-    wmngr.hide(getWndTest());
+    wmngr.hide(getWndTestState());
+    wmngr.hide(getWndTestState());
     EXPECT_EQ(0, wmngr.size());
 }
 
@@ -508,7 +523,7 @@ TEST_F(WIDGET, toString)
 
 TEST_F(WIDGET, getScreenCoord)
 {
-    const auto *p_wnd = wndTest.getWidgets();
+    const auto *p_wnd = getWndTestState()->getWidgets();
     ASSERT_NE(nullptr, p_wnd);
     ASSERT_EQ(twins::Widget::Window, p_wnd->type);
     const auto *p_lbl = twins::getWidget(p_wnd, ID_LED);
@@ -532,7 +547,7 @@ TEST_F(WIDGET, getScreenCoord)
 
 TEST_F(WIDGET, pageControl)
 {
-    const auto *p_wnd = wndTest.getWidgets();
+    const auto *p_wnd = getWndTestState()->getWidgets();
     ASSERT_NE(nullptr, p_wnd);
     const auto *p_pgctrl = twins::getWidget(p_wnd, ID_PGCTRL);
 
@@ -556,7 +571,8 @@ TEST_F(WIDGET, pageControl)
     }
 
     {
-        wndTest.pgIndex = 0;
+        auto &wndTest = *getWndTestState();
+        getWndTestState()->pgIndex = 0;
         twins::wgt::selectNextPage(p_wnd, ID_PGCTRL, true);
         EXPECT_EQ(1, wndTest.pgIndex);
         twins::wgt::selectNextPage(p_wnd, ID_PGCTRL, true);
@@ -574,6 +590,7 @@ TEST_F(WIDGET, pageControl)
 
 TEST_F(WIDGET, isWidgetVisible)
 {
+    auto &wndTest = *getWndTestState();
     const auto *p_wnd = wndTest.getWidgets();
     ASSERT_NE(nullptr, p_wnd);
     const auto *p_btn = twins::getWidget(p_wnd, ID_BTN1);
@@ -583,6 +600,7 @@ TEST_F(WIDGET, isWidgetVisible)
 
 TEST_F(WIDGET, isWidgetEnabled)
 {
+    auto &wndTest = *getWndTestState();
     const auto *p_wnd = wndTest.getWidgets();
     ASSERT_NE(nullptr, p_wnd);
     const auto *p_btn = twins::getWidget(p_wnd, ID_BTN1);
@@ -592,6 +610,8 @@ TEST_F(WIDGET, isWidgetEnabled)
 
 TEST_F(WIDGET, forEachChild)
 {
+    auto &wndTest = *getWndTestState();
+
     {
         uint16_t n = 0;
         wndTest.forEachChild(_ID_LAST, [&n](const twins::Widget *pWgt)
@@ -610,7 +630,7 @@ TEST_F(WIDGET, forEachChild)
             n++;
         });
 
-        const auto *p_page = twins::getWidget(wndTest.getWidgets(), ID_PAGE1);
+        const auto *p_page = twins::getWidget(getWndTestState()->getWidgets(), ID_PAGE1);
         ASSERT_NE(nullptr, p_page);
         EXPECT_GT(n, 0);
         EXPECT_EQ(p_page->link.childrenCnt, n);
@@ -619,40 +639,41 @@ TEST_F(WIDGET, forEachChild)
 
 TEST_F(WIDGET, processInput_Key)
 {
-    const auto *p_wnd = wndTest.getWidgets();
-    ASSERT_NE(nullptr, p_wnd);
+    const auto *p_widgets = getWndTestState()->getWidgets();
+    ASSERT_NE(nullptr, p_widgets);
 
     {
         twins::KeyCode kc = {};
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
     }
 
     {
         twins::KeyCode kc = {};
         kc.key = twins::Key::Esc;
         kc.m_spec = true;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
     }
 
     {
         twins::KeyCode kc = {};
         kc.key = twins::Key::Tab;
         kc.m_spec = true;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
     }
 
     {
         twins::KeyCode kc = {};
         kc.key = twins::Key::Home;
         kc.m_spec = true;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
     }
 }
 
 TEST_F(WIDGET, processInput_OnWidget)
 {
-    const auto *p_wnd = wndTest.getWidgets();
-    ASSERT_NE(nullptr, p_wnd);
+    auto &wndTest = *getWndTestState();
+    const auto *p_widgets = wndTest.getWidgets();
+    ASSERT_NE(nullptr, p_widgets);
 
     {
         wndTest.wgtId = ID_PGCTRL;
@@ -661,15 +682,15 @@ TEST_F(WIDGET, processInput_OnWidget)
         kc.m_spec = true;
 
         kc.key = twins::Key::PgDown;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(1, wndTest.pgIndex);
 
         kc.key = twins::Key::PgUp;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(0, wndTest.pgIndex);
 
         kc.key = twins::Key::F1;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(0, wndTest.pgIndex);
     }
 
@@ -680,15 +701,15 @@ TEST_F(WIDGET, processInput_OnWidget)
         kc.m_spec = true;
 
         kc.key = twins::Key::Enter;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_TRUE(wndTest.chbxChecked);
 
         kc.key = twins::Key::Enter;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_FALSE(wndTest.chbxChecked);
 
         kc.key = twins::Key::F1;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_FALSE(wndTest.chbxChecked);
     }
 
@@ -699,37 +720,38 @@ TEST_F(WIDGET, processInput_OnWidget)
         kc.m_spec = true;
 
         kc.key = twins::Key::Enter;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(ID_BTN1, wndTest.clickedId);
 
         wndTest.clickedId = {};
         kc.key = twins::Key::Enter;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(ID_BTN1, wndTest.clickedId);
 
         wndTest.clickedId = {};
         kc.key = twins::Key::F1;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(0, wndTest.clickedId);
     }
 }
 
 TEST_F(WIDGET, processInput_Mouse_BtnClick)
 {
-    const auto *p_wnd = wndTest.getWidgets();
-    ASSERT_NE(nullptr, p_wnd);
+    auto &wndTest = *getWndTestState();
+    const auto *p_widgets = wndTest.getWidgets();
+    ASSERT_NE(nullptr, p_widgets);
 
     {
         // outside window
         twins::KeyCode kc = {};
         kc.key = twins::Key::MouseEvent;
         kc.mouse.btn = twins::MouseBtn::ButtonLeft;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
     }
 
     {
         // button click
-        const auto *p_btn = twins::getWidget(p_wnd, ID_BTN1);
+        const auto *p_btn = twins::getWidget(p_widgets, ID_BTN1);
         auto btn_coord = twins::getScreenCoord(p_btn);
 
         wndTest.clickedId = {};
@@ -738,10 +760,10 @@ TEST_F(WIDGET, processInput_Mouse_BtnClick)
         kc.mouse.btn = twins::MouseBtn::ButtonLeft;
         kc.mouse.col = btn_coord.col;
         kc.mouse.row = btn_coord.row;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
 
         kc.mouse.btn = twins::MouseBtn::ButtonReleased;
-        twins::processInput(p_wnd, kc);
+        twins::processInput(p_widgets, kc);
         EXPECT_EQ(ID_BTN1, wndTest.clickedId);
     }
 }

@@ -99,6 +99,7 @@ struct IPal
     virtual int writeStr(const char *s, int16_t repeat = 1) = 0;
     virtual int writeStrLen(const char *s, uint16_t sLen) = 0;
     virtual int writeStrVFmt(const char *fmt, va_list ap) = 0;
+    //
     virtual void flushBuff() = 0;
     virtual void setLogging(bool on) = 0;
     virtual void promptPrinted() = 0;

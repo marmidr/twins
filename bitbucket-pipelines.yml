@@ -101,6 +101,7 @@ pipelines:
             script:
                 - lscpu
                 - g++ --version
+                - echo | g++ -dM -E -x c++ -
                 - find _sonar || true
         - step: *build_and_test
         #- step: *build_and_test_and_cover
