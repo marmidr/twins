@@ -596,6 +596,43 @@ TEST_F(STRING, eq)
     EXPECT_FALSE(s == "*ĄBĆDĘ?#");
 }
 
+TEST_F(STRING, lt)
+{
+    {
+        EXPECT_FALSE(twins::String::lt("", ""));
+        EXPECT_FALSE(twins::String::lt(nullptr, nullptr));
+        EXPECT_TRUE(twins::String::lt("", " "));
+        EXPECT_FALSE(twins::String::lt(" ", ""));
+
+        EXPECT_TRUE(twins::String::lt("", "", true));
+        EXPECT_FALSE(twins::String::lt(nullptr, nullptr, true));
+        EXPECT_TRUE(twins::String::lt("", " ", true));
+        EXPECT_FALSE(twins::String::lt(" ", "", true));
+    }
+
+    {
+        twins::String s1("Abć12");
+        twins::String s2("Abć13");
+
+        EXPECT_TRUE(s1 < s2);
+        EXPECT_TRUE(s1 <= s2);
+        EXPECT_TRUE(s1 <= "Abć22");
+        EXPECT_FALSE(s2 < s1);
+        EXPECT_FALSE(s2 <= s1);
+    }
+
+    {
+        twins::String s1("Kamille");
+        twins::String s2("kamille");
+        twins::String s3("a113");
+
+        EXPECT_TRUE(s1 < s2);
+        EXPECT_FALSE(s2 < s1);
+        EXPECT_TRUE(s1 < s3);
+        EXPECT_TRUE(s3 < s2);
+    }
+}
+
 // -----------------------------------------------------------------------------
 
 TEST(STRINGBUFF, create_empty)

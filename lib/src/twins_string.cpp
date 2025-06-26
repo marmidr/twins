@@ -635,6 +635,31 @@ const char* String::u8skip(const char *str, unsigned toSkip, bool ignoreESC)
     return str;
 }
 
+bool String::lt(const char *str1, const char *str2, bool lteq)
+{
+    if (!str1 || !str2)
+        return false;
+
+    auto u8char1 = utf8getchar(str1);
+    auto u8char2 = utf8getchar(str2);
+
+    while (*str1 && *str2)
+    {
+        // this compare is far from a good one
+        if (u8char1 != u8char2)
+            break;
+
+        auto sl1 = *str1 ? utf8seqlen(str1) : 0;
+        auto sl2 = *str2 ? utf8seqlen(str2) : 0;
+        str1 += sl1;
+        str2 += sl2;
+        u8char1 = utf8getchar(str1);
+        u8char2 = utf8getchar(str2);
+    }
+
+    return lteq ? u8char1 <= u8char2 : u8char1 < u8char2;
+}
+
 // -----------------------------------------------------------------------------
 
 } // twins

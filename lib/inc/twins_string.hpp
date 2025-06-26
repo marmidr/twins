@@ -82,6 +82,11 @@ public:
     /** @brief Equality operator */
     bool operator==(const String &s) const { return operator==(s.cstr()); }
     bool operator==(const char *str) const;
+    /** @brief Inequality operators */
+    bool operator<(const char *str) const { return lt(cstr(), str); };
+    bool operator<(const String &s) const { return lt(cstr(), s.cstr()); };
+    bool operator<=(const char *str) const { return lt(cstr(), str, true); };
+    bool operator<=(const String &s) const { return lt(cstr(), s.cstr(), true); };
 
     /** @brief Return ESC sequence length starting at \p str */
     static uint16_t escLen(const char *str, const char *strEnd = nullptr);
@@ -92,6 +97,8 @@ public:
     static inline uint16_t width(const char *str, const char *strEnd = nullptr) { return u8len(str, strEnd, true, true); }
     /** @brief Return pointer to \p str moved by \p toSkip UTF-8 characters, omitting ESC sequences */
     static const char* u8skip(const char *str, unsigned toSkip, bool ignoreESC = true);
+    /** @brief String compare, working on UTF-8 codes */
+    static bool lt(const char *str1, const char *str2, bool lteq = false);
 
 protected:
     void freeBuff();
