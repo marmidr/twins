@@ -12,6 +12,7 @@
 #include <utility>  // std::move
 #include <memory>   // new(addr) T()
 #include <initializer_list>
+#include <functional>
 #include <assert.h>
 
 // -----------------------------------------------------------------------------
@@ -411,13 +412,30 @@ public:
     }
 
     /** @brief Remove all items and free memory */
-    void clear(void)
+    void clear()
     {
         destroyContent();
         pPAL->memFree(mpItems);
         mpItems = nullptr;
         mCapacity = 0;
         mSize = 0;
+    }
+
+    /** @brief Simple, stack-safe sorting
+     * @param compare returns true if A < B
+     */
+    // void insertionSort(const std::function<bool(const T&, const T&)> &compare)
+    void insertionSort(bool (*compare)(const T&, const T&))
+    {
+        for (uint16_t i = 1; i < mSize; i++)
+        {
+            uint16_t j = i;
+            while (j > 0 && (!compare(mpItems[j-1], mpItems[j])))
+            {
+                swap(j-1, j);
+                j--;
+            }
+        }
     }
 
     Iter begin(void) { return Iter(*this, 0); }

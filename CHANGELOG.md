@@ -7,6 +7,7 @@ See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 * Added
   * twins::findCoveringWidget() - now the WndManager::hide() redraw only neccessary part of the underlying window
   * String::operator<()
+  * Vector::insertionSort()
 * Changed
   * WindowStateBase::invalidateImpl() updated - taken from demo, operates on invalidatedWgts
 

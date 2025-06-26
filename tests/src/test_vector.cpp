@@ -233,3 +233,42 @@ TEST(VECTOR, append_initializer_list)
 
     items_moved.clear();
 }
+
+TEST(VECTOR, sort_ints)
+{
+    auto items = twins::Vector<int>({2, 1, 15, 44, -2});
+
+    EXPECT_EQ(5, items.size());
+
+    items.insertionSort([](auto &n1, auto &n2)
+    {
+        return n1 < n2;
+    });
+
+    EXPECT_EQ(-2, items[0]);
+    EXPECT_EQ( 1, items[1]);
+    EXPECT_EQ( 2, items[2]);
+    EXPECT_EQ(15, items[3]);
+    EXPECT_EQ(44, items[4]);
+}
+
+TEST(VECTOR, sort_strings)
+{
+    auto items = twins::Vector<twins::String>(
+        std::initializer_list<twins::String>({"#2", "#1", "kamille", "a113", "Kamille", "bidon"})
+    );
+
+    EXPECT_EQ(6, items.size());
+
+    items.insertionSort([](auto &s1, auto &s2)
+    {
+        return s1 < s2;
+    });
+
+    EXPECT_STREQ("#1", items[0].cstr());
+    EXPECT_STREQ("#2", items[1].cstr());
+    EXPECT_STREQ("Kamille", items[2].cstr());
+    EXPECT_STREQ("a113", items[3].cstr());
+    EXPECT_STREQ("bidon", items[4].cstr());
+    EXPECT_STREQ("kamille", items[5].cstr());
+}
