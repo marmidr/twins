@@ -162,7 +162,8 @@ void writeCurrentTime(const uint64_t *pTimestamp)
         gettimeofday(&tv, nullptr);
     }
 
-    struct tm *p_stm = localtime(&tv.tv_sec);
+    time_t t = tv.tv_sec;
+    struct tm *p_stm = localtime(&t);
 
 #if TWINS_PRECISE_TIMESTAMP
     tv.tv_usec /= 1000;
