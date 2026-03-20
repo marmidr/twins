@@ -71,15 +71,13 @@
         "thread": "cpp",
         "cinttypes": "cpp"
     },
-    "C_Cpp.default.defines": [
-    ],
+    "C_Cpp.default.defines": [],
     "testMate.cpp.test.executables": "{build,Build,BUILD}/**/*{test,Test,UT}*",
     "cmake.configureArgs": [
         "-D CMAKE_VERBOSE_MAKEFILE=OFF",
-        "-D CMAKE_COLOR_MAKEFILE=OFF" // colors not decoded - looks bad in VSCode terminal
+        "-D CMAKE_COLOR_MAKEFILE=OFF"
     ],
     "cmake.parallelJobs": 4,
-    "cmake.cmakePath": "c:\\msys64\\usr\\bin\\cmake.exe",
     "cmake.buildDirectory": "${workspaceFolder}/build-vscode",
     "cmake.generator": "Unix Makefiles",
     "cmake.automaticReconfigure": false,

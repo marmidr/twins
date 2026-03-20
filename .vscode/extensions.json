@@ -3,14 +3,15 @@
         "matepek.vscode-catch2-test-adapter",
         "alefragnani.bookmarks",
         "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
         "maptz.camelcasenavigation",
-        "josetr.cmake-language-support-vscode",
         "rockingskier.copy-copy-paste",
         "davidanson.vscode-markdownlint",
         "pkief.material-icon-theme",
         "takumii.tabspace",
         "wayou.vscode-todo-highlight",
         "gruntfuggly.todo-tree",
-        "shardulm94.trailing-spaces"
+        "shardulm94.trailing-spaces",
+        "franmastromarino.vs-code-settings-os"
     ]
 }

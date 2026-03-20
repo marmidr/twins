@@ -2,3 +2,4 @@ bookmarks.json
 demo.log
 
 build*/
+.vscode/settings.json

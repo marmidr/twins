@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.27.0 - 2026-03-20
+
+* Added
+  * twins::SecurePassw
+
 ## 0.26.0 - 2025-06-26
 
 * Added

@@ -1,24 +1,25 @@
 ################################################################################
 #   TWins library - unit tests
-#   (c) 2020-2025 Mariusz Midor
+#   (c) 2020-2026 Mariusz Midor
 #   https://bitbucket.org/marmidr/twins/
 ################################################################################
 
 set(TARGETNAME TWinsUT)
 
 add_executable(${TARGETNAME}
-    src/test_main.cpp
     src/test_ansi_esc_decoder.cpp
-    src/test_string.cpp
-    src/test_utils.cpp
-    src/test_stack.cpp
-    src/test_queue.cpp
-    src/test_vector.cpp
-    src/test_map.cpp
-    src/test_twins.cpp
-    src/test_input_posix.cpp
-    src/test_widget.cpp
     src/test_cli.cpp
+    src/test_input_posix.cpp
+    src/test_main.cpp
+    src/test_map.cpp
+    src/test_queue.cpp
+    src/test_secure_psw.cpp
+    src/test_stack.cpp
+    src/test_string.cpp
+    src/test_twins.cpp
+    src/test_utils.cpp
+    src/test_vector.cpp
+    src/test_widget.cpp
 )
 
 target_compile_options(${TARGETNAME} PRIVATE
@@ -109,6 +110,7 @@ if (TWINS_SEPARATE_TESTS)
     add_subtest(INP_POSIX)
     add_subtest(MAP)
     add_subtest(QUEUE)
+    add_subtest(SECURE_PSW)
     add_subtest(STACK)
     add_subtest(STRING)
     add_subtest(STRINGBUFF)
