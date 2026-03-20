@@ -32,8 +32,11 @@ namespace twins::cli
 
 struct CliState
 {
+    using Passwords = std::initializer_list<twins::SecurePassw>;
+
     CliState() {}
     ~CliState() {}
+    void resetPasswValue() { pPasswordValue = &mEmptyPassword; }
 
     String          lineBuff;
     History         history;
@@ -43,10 +46,13 @@ struct CliState
     Queue<String>   cmdQue;
     CmdHandler      overrideHandler;
     //
-    Vector<String>  passwords;
-    String          passwordMatchPrompt;
-    String          passwordValue;
-    bool            passwordEntryMode = {};
+    Passwords           passwords;
+    String              passwordMatchPrompt;
+    bool                passwordEntryMode = {};
+    const SecurePassw*  pPasswordValue = &mEmptyPassword;
+
+private:
+    const SecurePassw mEmptyPassword{""};
 };
 
 // trick to avoid automatic variable creation/destruction causing calls to uninitialized PAL
@@ -86,12 +92,11 @@ void reset(void)
     g_cs.historyIdx = 0;
 }
 
-void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrmpt)
+void passwordSet(const std::initializer_list<twins::SecurePassw> &passwords, const char *onPasswordMatchPrompt)
 {
-    g_cs.passwords.clear();
-    g_cs.passwords.append(std::move(passwords));
-    g_cs.passwordValue.clear();
-    g_cs.passwordMatchPrompt = onPasswordMatchPrmpt;
+    g_cs.passwords = passwords;
+    g_cs.passwordMatchPrompt = onPasswordMatchPrompt;
+    g_cs.resetPasswValue();
 
     if (g_cs.passwords.size() == 0)
         g_cs.passwordEntryMode = false;
@@ -108,10 +113,9 @@ bool passwordModeIsEnabled()
     return g_cs.passwordEntryMode;
 }
 
-String passwordValue()
+const twins::SecurePassw& passwordValue()
 {
-    auto psw = std::move(g_cs.passwordValue);
-    return psw;
+    return *g_cs.pPasswordValue;
 }
 
 void processInput(const char* data, uint8_t dataLen)
@@ -564,9 +568,19 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
     {
         if (g_cs.passwordEntryMode)
         {
-            if (g_cs.passwords.find(cmd))
+            bool passw_ok = false;
+            for (const auto &psw : g_cs.passwords)
             {
-                g_cs.passwordValue = cmd;
+                if (psw == cmd.cstr())
+                {
+                    passw_ok = true;
+                    g_cs.pPasswordValue = &psw;
+                    break;
+                }
+            }
+
+            if (passw_ok)
+            {
                 g_cs.passwordEntryMode = false;
 
                 writeStr(ESC_FG_GREEN_INTENSE);

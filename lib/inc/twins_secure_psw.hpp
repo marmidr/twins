@@ -69,6 +69,20 @@ public:
         return true;
     }
 
+    /** @brief If valid, compares own and \p other's encoded passwords */
+    bool operator==(const SecurePassw& other) const
+    {
+        if ((mPswLen == 0) || (mPswLen != other.mPswLen))
+            return false;
+
+        // compare entire buffers
+        for (uint16_t k = 0; k < sizeof(mScrambledPsw); ++k)
+            if (mScrambledPsw[k] != other.mScrambledPsw[k])
+                return false;
+
+        return true;
+    }
+
     /** @brief Check if object contains a password */
     bool hasPassword() const { return mPswLen > 0; }
 

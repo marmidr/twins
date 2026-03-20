@@ -9,10 +9,12 @@
 
 #include "twins_vector.hpp"
 #include "twins_string.hpp"
+#include "twins_secure_psw.hpp"
 #include "twins_ringbuffer.hpp"
 
 #include <stdint.h>
 #include <functional>
+#include <initializer_list>
 
 #ifndef TWINS_CLI_LIGHTWEIGHT_CMD
 # define TWINS_CLI_LIGHTWEIGHT_CMD  1
@@ -67,9 +69,9 @@ void reset(void);
 
 /**
  * @brief Sets a valid passwords to be entered; if \p passwords is empty, password mode is disabled.
- * @param onPasswordMatchPrmpt - message printed when correct password is entered
+ * @param onPasswordMatchPrompt - message printed when correct password is entered
  */
-void passwordSet(twins::Vector<String> passwords, const char *onPasswordMatchPrmpt = "");
+void passwordSet(const std::initializer_list<twins::SecurePassw> &passwords, const char *onPasswordMatchPrompt = "");
 
 /**
  * @brief Activates/deactivates a password entering mode (echoes *** instead of letters)
@@ -83,9 +85,9 @@ void passwordModeEnable(bool en);
 bool passwordModeIsEnabled();
 
 /**
- * @brief Returns the entered correct password or ""
+ * @brief Returns the entered correct password or empty object
  */
-String passwordValue();
+const twins::SecurePassw& passwordValue();
 
 /**
  * @brief Process \p data, emit echo
