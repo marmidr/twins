@@ -8,6 +8,7 @@ See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
   * twins::SecurePassw
 * Changed
   * CLI uses SecurePassw instead of raw strings
+  * CLI history with public last item index
 
 ## 0.26.0 - 2025-06-26
 

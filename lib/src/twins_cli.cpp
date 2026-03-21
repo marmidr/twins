@@ -19,7 +19,7 @@
 #endif
 
 #ifndef TWINS_CLI_MAXHIST
-# define TWINS_CLI_MAXHIST      20
+# define TWINS_CLI_MAXHIST      30
 #endif
 
 #define CRLF                    "\r\n"
@@ -41,7 +41,6 @@ struct CliState
     String          lineBuff;
     History         history;
     int16_t         cursorPos = 0;
-    int16_t         historyIdx = 0;
     RingBuff<char>  seqRingBuff;
     Queue<String>   cmdQue;
     CmdHandler      overrideHandler;
@@ -88,8 +87,7 @@ void reset(void)
     g_cs.seqRingBuff.clear();
     g_cs.lineBuff.clear();
     g_cs.cursorPos = 0;
-    g_cs.history.clear();
-    g_cs.historyIdx = 0;
+    g_cs.history.reset();
 }
 
 void passwordSet(const std::initializer_list<twins::SecurePassw> &passwords, const char *onPasswordMatchPrompt)
@@ -171,18 +169,18 @@ void processInput(twins::RingBuff<char> &rb)
             case Key::Up:
             case Key::Down:
                 // history inactive in password mode
-                if (g_cs.history.size() && !g_cs.passwordEntryMode)
+                if (g_cs.history.items.size() && !g_cs.passwordEntryMode)
                 {
-                    g_cs.historyIdx += kc.key == Key::Up ? -1 : 1;
+                    g_cs.history.idx += kc.key == Key::Up ? -1 : 1;
 
-                    if (g_cs.historyIdx < 0)
-                        g_cs.historyIdx = 0;
-                    else if (g_cs.historyIdx >= (int)g_cs.history.size())
-                        g_cs.historyIdx = g_cs.history.size()-1;
+                    if (g_cs.history.idx < 0)
+                        g_cs.history.idx = 0;
+                    else if (g_cs.history.idx >= (int)g_cs.history.items.size())
+                        g_cs.history.idx = g_cs.history.items.size()-1;
 
                     moveBy(-(int16_t)g_cs.lineBuff.u8len(), 0);
                     writeStr(ESC_LINE_ERASE_RIGHT);
-                    g_cs.lineBuff = g_cs.history[g_cs.historyIdx];
+                    g_cs.lineBuff = g_cs.history.items[g_cs.history.idx];
                     g_cs.cursorPos = g_cs.lineBuff.u8len();
                     writeStrLen(g_cs.lineBuff.cstr(), g_cs.lineBuff.size());
                 }
@@ -263,21 +261,21 @@ void processInput(twins::RingBuff<char> &rb)
                     if (!g_cs.passwordEntryMode)
                     {
                         int idx = 0;
-                        if (auto *str = g_cs.history.find(g_cs.lineBuff, &idx))
+                        if (auto *str = g_cs.history.items.find(g_cs.lineBuff, &idx))
                         {
                             // move to top
                             String tmp = std::move(*str);
-                            g_cs.history.remove(idx, true);
-                            g_cs.history.append(std::move(tmp));
+                            g_cs.history.items.remove(idx, true);
+                            g_cs.history.items.append(std::move(tmp));
                         }
                         else
                         {
-                            g_cs.history.append(g_cs.lineBuff);
-                            if (g_cs.history.size() > TWINS_CLI_MAXHIST)
-                                g_cs.history.remove(0, true);
+                            g_cs.history.items.append(g_cs.lineBuff);
+                            if (g_cs.history.items.size() > TWINS_CLI_MAXHIST)
+                                g_cs.history.items.remove(0, true);
                         }
                     }
-                    g_cs.historyIdx = g_cs.history.size();
+                    g_cs.history.idx = g_cs.history.items.size();
                     g_cs.cmdQue.write(std::move(g_cs.lineBuff));
                     g_cs.lineBuff.clear();
                 }
@@ -403,7 +401,7 @@ void printHelp(Argv &argv, const Cmd* pCommands)
 void printHistory()
 {
     int i = 1;
-    for (const auto &s : g_cs.history)
+    for (const auto &s : g_cs.history.items)
         writeStrFmt("%2d. %s" CRLF, i++, s.cstr());
     flushBuffer();
 }
@@ -624,8 +622,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
         {
             if (streq(argv[1], "--clr"))
             {
-                g_cs.history.clear();
-                g_cs.historyIdx = 0;
+                g_cs.history.reset();
             }
             else
             {

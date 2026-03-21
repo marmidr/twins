@@ -173,9 +173,9 @@ TEST_F(CLI, commands)
     }
 
     // get a history
-    EXPECT_GE(twins::cli::getHistory().size(), 2);
+    EXPECT_GE(twins::cli::getHistory().items.size(), 2);
     twins::cli::reset();
-    EXPECT_EQ(twins::cli::getHistory().size(), 0);
+    EXPECT_EQ(twins::cli::getHistory().items.size(), 0);
 }
 
 TEST_F(CLI, control_codes)

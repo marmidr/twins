@@ -51,7 +51,18 @@ struct Cmd
 
 // -----------------------------------------------------------------------------
 
-using History = Vector<String>;
+/** @brief Stores the command-line history */
+struct History
+{
+    Vector<String> items;
+    int16_t idx;
+
+    void reset()
+    {
+        items.clear();
+        idx = 0;
+    }
+};
 
 /** @brief Controls command parser debug output */
 extern bool verbose;
