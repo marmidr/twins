@@ -22,6 +22,9 @@ class SecurePassw
 public:
     static constexpr uint16_t PSW_MAX_LEN = 20;
 
+    /** @brief Default constructor */
+    constexpr SecurePassw() {}
+
     /** @brief Constructor that encodes given password */
     constexpr SecurePassw(const char* psw)
     {
@@ -30,7 +33,7 @@ public:
         while (psw[psw_len] != '\0')
             ++psw_len;
 
-        if (psw_len >= PSW_MAX_LEN)
+        if (psw_len > PSW_MAX_LEN)
         {
             // error - provided password is too long
             return;
@@ -38,13 +41,9 @@ public:
 
         mPswLen = psw_len;
 
-        // fill permutation map
-        for (uint16_t k = 0; k < mPswLen; ++k)
-            mPswMap[k] = permute(k);
-
         // store scrambled password
         for (uint16_t k = 0; k < mPswLen; ++k)
-            mScrambledPsw[ mPswMap[k] ] = psw[k];
+            mScrambledPsw[permute(k)] = psw[k];
     }
 
     /** @brief Compares given string against the encoded password */
@@ -61,7 +60,7 @@ public:
         // compare characters using reverse mapping
         for (uint16_t k = 0; k < mPswLen; ++k)
         {
-            uint8_t pos = mPswMap[k];
+            uint8_t pos = permute(k);
             if (mScrambledPsw[pos] != psw[k])
                 return false;
         }
@@ -88,7 +87,6 @@ public:
 
 private:
     uint16_t mPswLen{};
-    uint8_t  mPswMap[PSW_MAX_LEN]{};   // permutation mapping
     char     mScrambledPsw[PSW_MAX_LEN]{};
 
     // simple constexpr pseudo-random permutation generator

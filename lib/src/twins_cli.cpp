@@ -52,7 +52,7 @@ struct CliState
     const SecurePassw*  pPasswordValue = &mEmptyPassword;
 
 private:
-    const SecurePassw mEmptyPassword{""};
+    const SecurePassw mEmptyPassword;
 };
 
 // trick to avoid automatic variable creation/destruction causing calls to uninitialized PAL
