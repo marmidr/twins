@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.27.1 - 2026-03-23
+
+* Fixed
+  * CLI SecurePassw stored as value, not reference
+
 ## 0.27.0 - 2026-03-20
 
 * Added

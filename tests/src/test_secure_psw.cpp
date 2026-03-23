@@ -40,8 +40,8 @@ TEST(SECURE_PSW, too_long)
 
 TEST(SECURE_PSW, compare)
 {
-    twins::SecurePassw psw0a{""};
-    twins::SecurePassw psw0b{""};
+    constexpr twins::SecurePassw psw0a{""};
+    constexpr twins::SecurePassw psw0b{""};
     twins::SecurePassw psw1{"mySecret"};
     twins::SecurePassw psw2{"my_ecret"};
     twins::SecurePassw psw3{"mySecret"};

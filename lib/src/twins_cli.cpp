@@ -32,7 +32,7 @@ namespace twins::cli
 
 struct CliState
 {
-    using Passwords = std::initializer_list<twins::SecurePassw>;
+    using Passwords = twins::Vector<twins::SecurePassw>;
 
     CliState() {}
     ~CliState() {}
@@ -577,10 +577,10 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
                 }
             }
 
+            g_cs.passwordEntryMode = false;
+
             if (passw_ok)
             {
-                g_cs.passwordEntryMode = false;
-
                 writeStr(ESC_FG_GREEN_INTENSE);
                 writeStr("Access granted." CRLF);
                 writeStr(ESC_FG_DEFAULT);
@@ -593,6 +593,8 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
             }
             else
             {
+                g_cs.resetPasswValue();
+
                 // writeStr(CRLF);
                 writeStr(ESC_FG_RED_INTENSE);
                 writeStr("Incorrect password - access denied.");
@@ -600,7 +602,6 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
                 prompt(true);
                 flushBuffer();
 
-                g_cs.passwordEntryMode = false;
                 g_cs.cmdQue.read();
                 return true;
             }
