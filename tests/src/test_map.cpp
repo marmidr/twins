@@ -19,6 +19,12 @@ const char *itostr(int i)
     return buff;
 }
 
+TEST(MAP, constexpr_hash)
+{
+    constexpr auto h = twins::HashDefault::hash("Don Papa Rum is produced with a molasses base from an old strain of sugar cane.");
+    EXPECT_TRUE(h != 0);
+}
+
 TEST(MAP, add_many)
 {
     twins::Map<short, long long> m;
