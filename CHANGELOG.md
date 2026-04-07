@@ -2,6 +2,11 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.27.2 - 2026-04-07
+
+* Changed
+  * twins::SecurePassw stores hash, not mangled password string
+
 ## 0.27.1 - 2026-03-23
 
 * Fixed
