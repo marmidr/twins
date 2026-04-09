@@ -931,6 +931,17 @@ static void cli()
             }
         },
         {
+            "mute",
+            "\r\n"
+            "    Silence all sounds",
+            TWINS_CLI_HANDLER
+            {
+                twins::writeStrFmt("cmd '%s'(", argv[0]);
+                for (auto a : argv) twins::writeStrFmt("%s, ", a);
+                twins::writeStr(")\r\n");
+            }
+        },
+        {
             "",
             "default cmd handler",
             TWINS_CLI_HANDLER
@@ -977,7 +988,7 @@ static void cli()
         }
 
         // add new data or process state machine
-        twins::cli::processInput(posix_inp);
+        twins::cli::processInput(commands, posix_inp);
         // execute if command completed
         twins::cli::checkAndExec(commands);
         twins::flushBuffer();

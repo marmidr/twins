@@ -39,11 +39,11 @@ using CmdHandler = std::function<void(twins::cli::Argv &argv)>;
  */
 struct Cmd
 {
-    const char* name;
-    const char* help;
+    const char* name = nullptr;
+    const char* help = nullptr;
     uint8_t access = TWINS_CLI_ACCESS_UNRESTRICTED;
     #if TWINS_CLI_LIGHTWEIGHT_CMD
-    void (*handler)(twins::cli::Argv &argv);
+    void (*handler)(twins::cli::Argv &argv) = {};
     #else
     CmdHandler handler;
     #endif
@@ -103,12 +103,12 @@ const twins::SecurePassw& passwordValue();
 /**
  * @brief Process \p data, emit echo
  */
-void processInput(const char* data, uint8_t dataLen = 0);
+void processInput(const Cmd *pCommands, const char* data, uint8_t dataLen = 0);
 
 /**
  * @brief Process the ring buffer \p rb, emit echo
  */
-void processInput(twins::RingBuff<char> &rb);
+void processInput(const Cmd *pCommands, twins::RingBuff<char> &rb);
 
 /**
  * @brief CRLF >
@@ -141,11 +141,11 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet = true);
 
 /**
  * @brief Execute command line \p cmdline.
- * @param cmdline command and arguments; terminator \b \r not required
  * @param pCommands array of \b Cmd, terminated with empty cmd {}
+ * @param cmdline command and arguments; terminator \b \r not required
  * @return true if handler was found and executed
  */
-bool execLine(const char *cmdline, const Cmd* pCommands);
+bool execLine(const Cmd* pCommands, const char *cmdline);
 
 /**
  * @brief Set the override command handler used when \c checkAndExec() called;
@@ -153,6 +153,14 @@ bool execLine(const char *cmdline, const Cmd* pCommands);
  * @param handler
  */
 void setOverrideHandler(CmdHandler handler);
+
+/**
+ * @brief Handles the TAB key, completing the partially entered command
+ *
+ * @param pCommands array of \b Cmd, terminated with empty cmd {}
+ * @param prefix    partially entered command
+ */
+bool autocompleteCommand(const Cmd *pCommands, const char *prefix);
 
 // -----------------------------------------------------------------------------
 
