@@ -12,6 +12,8 @@
         "wayou.vscode-todo-highlight",
         "gruntfuggly.todo-tree",
         "shardulm94.trailing-spaces",
-        "franmastromarino.vs-code-settings-os"
+        "franmastromarino.vs-code-settings-os",
+        "cschlosser.doxdocgen",
+        "editorconfig.editorconfig"
     ]
 }
