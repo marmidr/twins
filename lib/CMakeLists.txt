@@ -17,7 +17,6 @@ add_library(${TARGETNAME} STATIC
     src/twins_ansi_esc_decoder.cpp
     src/twins_cli.cpp
     src/twins_colors.cpp
-    src/twins_input_posix.cpp
     src/twins_string.cpp
     src/twins_utf8str.cpp
     src/twins_utils.cpp

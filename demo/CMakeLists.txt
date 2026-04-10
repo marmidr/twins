@@ -11,6 +11,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 add_executable(${TARGETNAME}
     src/demo.cpp
     src/demo_wnd.cpp
+    src/twins_input_posix.cpp
 )
 
 target_include_directories(${TARGETNAME}

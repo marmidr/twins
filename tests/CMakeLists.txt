@@ -9,7 +9,6 @@ set(TARGETNAME TWinsUT)
 add_executable(${TARGETNAME}
     src/test_ansi_esc_decoder.cpp
     src/test_cli.cpp
-    src/test_input_posix.cpp
     src/test_main.cpp
     src/test_map.cpp
     src/test_queue.cpp
