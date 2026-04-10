@@ -85,7 +85,7 @@ TEST_F(CLI, commands)
             TWINS_CLI_HANDLER
             {
                 assert(p_commands);
-                twins::cli::execLine("    V  ", p_commands);
+                twins::cli::execLine(p_commands, "    V  ");
             }
         },
         {
@@ -111,9 +111,9 @@ TEST_F(CLI, commands)
         { /* terminator */ }
     };
 
-    twins::cli::processInput("ver" "\r\n");
+    twins::cli::processInput(commands, "ver" "\r\n");
     twins::cli::checkAndExec(commands);
-    twins::cli::processInput("move up" "\r\n");
+    twins::cli::processInput(commands, "move up" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(ver_called);
     EXPECT_EQ('u', move_dir);
@@ -121,45 +121,45 @@ TEST_F(CLI, commands)
     // known command, but extra chars
     move_dir = 0;
     default_called = false;
-    twins::cli::processInput("moveEEE up" "\r\n");
+    twins::cli::processInput(commands, "moveEEE up" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(default_called);
     EXPECT_EQ(0, move_dir);
 
     // test for alias
     ver_called = false;
-    twins::cli::processInput("V" "\r\n");
+    twins::cli::processInput(commands, "V" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(ver_called);
 
     // test for call
     p_commands = commands;
     ver_called = false;
-    twins::cli::processInput("call_ver" "\r\n");
+    twins::cli::processInput(commands, "call_ver" "\r\n");
     twins::cli::checkAndExec(commands);
     EXPECT_TRUE(ver_called);
 
     // print history
-    twins::cli::processInput("hist" "\r\n");
+    twins::cli::processInput(commands, "hist" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 
     // print help
-    twins::cli::processInput("help" "\r\n");
+    twins::cli::processInput(commands, "help" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 
     // print help of given command
-    twins::cli::processInput("help ver" "\r\n");
+    twins::cli::processInput(commands, "help ver" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 
     // unknown cmd
     default_called = false;
-    twins::cli::processInput("say-ello\r\n");
+    twins::cli::processInput(commands, "say-ello\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(default_called);
 
     // restricted command
     {
-        twins::cli::processInput("restart" "\r\n");
+        twins::cli::processInput(commands, "restart" "\r\n");
         EXPECT_FALSE(twins::cli::checkAndExec(commands));
         EXPECT_FALSE(do_restart);
         EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
@@ -167,7 +167,7 @@ TEST_F(CLI, commands)
         // disable password mode and set the access flag manually
         twins::cli::passwordModeEnable(false);
         twins::cli::accessFlags = CMD_ACCESS_RESTRICTED;
-        twins::cli::processInput("restart" "\r\n");
+        twins::cli::processInput(commands, "restart" "\r\n");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_TRUE(do_restart);
     }
@@ -191,38 +191,38 @@ TEST_F(CLI, control_codes)
     };
 
     // empty command
-    twins::cli::processInput("\r\n");
+    twins::cli::processInput(commands, "\r\n");
     EXPECT_FALSE(twins::cli::checkAndExec(commands));
 
     // put something to history
-    twins::cli::processInput("HELLO\r\n");
+    twins::cli::processInput(commands, "HELLO\r\n");
     EXPECT_FALSE(twins::cli::checkAndExec(commands));
 
     // put wrong command and modify it as in terminal
     {
         twins::cli::reset();
-        twins::cli::processInput("HERO");
+        twins::cli::processInput(commands, "HERO");
         // left
-        twins::cli::processInput("\e[D");
-        twins::cli::processInput("\e[D");
+        twins::cli::processInput(commands, "\e[D");
+        twins::cli::processInput(commands, "\e[D");
         // del R
-        twins::cli::processInput("\e[3~");
+        twins::cli::processInput(commands, "\e[3~");
         // insert LL
-        twins::cli::processInput("LL");
+        twins::cli::processInput(commands, "LL");
         // right
-        twins::cli::processInput("\e[C");
+        twins::cli::processInput(commands, "\e[C");
         // append !
-        twins::cli::processInput("!");
+        twins::cli::processInput(commands, "!");
         // home
-        twins::cli::processInput("\e[H");
-        twins::cli::processInput("*");
+        twins::cli::processInput(commands, "\e[H");
+        twins::cli::processInput(commands, "*");
         // end
-        twins::cli::processInput("\e[F");
-        twins::cli::processInput("##");
+        twins::cli::processInput(commands, "\e[F");
+        twins::cli::processInput(commands, "##");
         // backspace
-        twins::cli::processInput("\x7F"); // Ansi::DEL == Backspace
+        twins::cli::processInput(commands, "\x7F"); // Ansi::DEL == Backspace
         // and run it
-        twins::cli::processInput("\r");
+        twins::cli::processInput(commands, "\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
     }
 
@@ -230,13 +230,13 @@ TEST_F(CLI, control_codes)
     EXPECT_FALSE(twins::cli::checkAndExec(commands));
 
     // up - recall from history
-    twins::cli::processInput("\e[A");
-    twins::cli::processInput("\r\n");
+    twins::cli::processInput(commands, "\e[A");
+    twins::cli::processInput(commands, "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 
     // down - recall from history
-    twins::cli::processInput("\e[B");
-    twins::cli::processInput("\r");
+    twins::cli::processInput(commands, "\e[B");
+    twins::cli::processInput(commands, "\r");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 }
 
@@ -264,19 +264,19 @@ TEST_F(CLI, quoted_args)
 
     // no arg
     args_value.clear();
-    twins::cli::processInput("name" "\r\n");
+    twins::cli::processInput(commands, "name" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(args_value.empty());
 
     // arg ok
     args_value.clear();
-    twins::cli::processInput("name   Tiamat \"Heaven Of High\" -s TFG" "\r\n");
+    twins::cli::processInput(commands, "name   Tiamat \"Heaven Of High\" -s TFG" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_STREQ(args_value.c_str(), "Tiamat - Heaven Of High");
 
     // missing closing quote
     args_value.clear();
-    twins::cli::processInput(" name Therion \"Clavicula 🔱 Nox" "\r\n");
+    twins::cli::processInput(commands, " name Therion \"Clavicula 🔱 Nox" "\r\n");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_STREQ(args_value.c_str(), "Therion - Clavicula 🔱 Nox");
 
@@ -300,12 +300,12 @@ TEST_F(CLI, sliced_esc)
     };
 
     // incomplete command
-    twins::cli::processInput("nae");
+    twins::cli::processInput(commands, "nae");
     // left
-    twins::cli::processInput("\e"); // shall not be interpreted as ESC
-    twins::cli::processInput("[D"); // now give "Left"
+    twins::cli::processInput(commands, "\e"); // shall not be interpreted as ESC
+    twins::cli::processInput(commands, "[D"); // now give "Left"
     // insert missing 'm' and "Enter"
-    twins::cli::processInput("m\r");
+    twins::cli::processInput(commands, "m\r");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
 }
 
@@ -330,7 +330,7 @@ TEST_F(CLI, many_cmds_in_buffer)
     push_called = pop_called = size_called = false;
 
     // push a few commands before checking
-    twins::cli::processInput("push 1\r" "size\r" "pop\r ");
+    twins::cli::processInput(commands, "push 1\r" "size\r" "pop\r ");
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
     EXPECT_TRUE(push_called);
     EXPECT_TRUE(twins::cli::checkAndExec(commands));
@@ -372,14 +372,14 @@ TEST_F(CLI, override_handler)
 
         // register override
         twins::cli::setOverrideHandler(temporary_handler);
-        twins::cli::processInput("push 1\r");
+        twins::cli::processInput(commands, "push 1\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_FALSE(push_called);
         EXPECT_TRUE(temporary_called);
 
         push_called = false;
         temporary_called = false;
-        twins::cli::processInput("any weird command\r");
+        twins::cli::processInput(commands, "any weird command\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_TRUE(temporary_called);
 
@@ -387,7 +387,7 @@ TEST_F(CLI, override_handler)
         push_called = false;
         temporary_called = false;
         twins::cli::setOverrideHandler({});
-        twins::cli::processInput("push 1\r");
+        twins::cli::processInput(commands, "push 1\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_TRUE(push_called);
     }
@@ -399,7 +399,7 @@ TEST_F(CLI, override_handler)
 
         // register override
         twins::cli::setOverrideHandler(temporary_handler);
-        twins::cli::processInput("unregister\r");
+        twins::cli::processInput(commands, "unregister\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_FALSE(push_called);
         EXPECT_TRUE(temporary_called);
@@ -407,7 +407,7 @@ TEST_F(CLI, override_handler)
         // second call - handler from commands expected to be called
         push_called = false;
         temporary_called = false;
-        twins::cli::processInput("push 1\r");
+        twins::cli::processInput(commands, "push 1\r");
         EXPECT_TRUE(twins::cli::checkAndExec(commands));
         EXPECT_TRUE(push_called);
         EXPECT_FALSE(temporary_called);
@@ -441,13 +441,13 @@ TEST_F(CLI, password_mode)
             EXPECT_TRUE(twins::cli::passwordModeIsEnabled());
 
             // wrong password
-            twins::cli::processInput("X\r");
+            twins::cli::processInput(commands, "X\r");
             EXPECT_TRUE(twins::cli::checkAndExec(commands));
             EXPECT_FALSE(twins::cli::passwordModeIsEnabled());
             EXPECT_FALSE(twins::cli::passwordValue().hasPassword());
 
             // correct password
-            twins::cli::processInput("qwerty\r");
+            twins::cli::processInput(commands, "qwerty\r");
             twins::cli::passwordModeEnable(true);
             EXPECT_TRUE(twins::cli::checkAndExec(commands));
             EXPECT_FALSE(twins::cli::passwordModeIsEnabled());

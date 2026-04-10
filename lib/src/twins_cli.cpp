@@ -63,6 +63,11 @@ bool verbose = true;
 bool echoNlAfterCr = false;
 uint8_t accessFlags = 0;
 
+// private code
+
+/// @brief get the command name (before '|' if present)
+static CStrView getCmdName(const char *name);
+
 // -----------------------------------------------------------------------------
 
 void init(void)
@@ -116,7 +121,7 @@ const twins::SecurePassw& passwordValue()
     return *g_cs.pPasswordValue;
 }
 
-void processInput(const char* data, uint8_t dataLen)
+void processInput(const Cmd *pCommands, const char* data, uint8_t dataLen)
 {
     if (!data)
         data = "";
@@ -132,14 +137,14 @@ void processInput(const char* data, uint8_t dataLen)
         uint8_t to_write = dataLen > ESC_SEQ_MAX_LENGTH ? ESC_SEQ_MAX_LENGTH : dataLen;
 
         g_cs.seqRingBuff.write(data, to_write);
-        processInput(g_cs.seqRingBuff);
+        processInput(pCommands, g_cs.seqRingBuff);
 
         data += to_write;
         dataLen -= to_write;
     }
 }
 
-void processInput(twins::RingBuff<char> &rb)
+void processInput(const Cmd *pCommands, twins::RingBuff<char> &rb)
 {
     char seq[ESC_SEQ_MAX_LENGTH];
 
@@ -247,7 +252,11 @@ void processInput(twins::RingBuff<char> &rb)
                 p_seq = nullptr; // suppress echo
                 break;
             case Key::Tab:
-                // auto complete
+                // auto complete - only if at least one character was typed
+                if (g_cs.lineBuff.size() > 0 && pCommands)
+                {
+                    autocompleteCommand(pCommands, g_cs.lineBuff.cstr());
+                }
                 p_seq = nullptr; // suppress echo
                 break;
             case Key::Enter:
@@ -334,6 +343,159 @@ History& getHistory(void)
     return g_cs.history;
 }
 
+bool autocompleteCommand(const Cmd *pCommands, const char *prefix)
+{
+    assert(pCommands);
+
+    if (!prefix || !*prefix)
+        return false;
+
+    const bool help_cmd = strstr(prefix, "help ") == prefix;
+
+    // skip help invocation and following spaces
+    if (help_cmd)
+    {
+        prefix += 4;
+        while (*prefix == ' ')
+            prefix++;
+    }
+
+    const uint16_t prefix_len = strlen(prefix);
+
+    if (prefix_len >= 1)
+    {
+        constexpr Cmd internal_cmds[] = { Cmd{"help"}, Cmd{"hist"}, Cmd{} };
+        const Cmd* p_first_match = nullptr;
+        uint16_t match_count = 0;
+
+        // First pass: count matches and find the first one
+        auto check_commands = [&](const Cmd* pCmd)
+        {
+            while (pCmd->name)
+            {
+                if (pCmd->name[0] != '\0')
+                {
+                    CStrView cmd_name = getCmdName(pCmd->name);
+
+                    // check if command starts with prefix
+                    if ((cmd_name.size >= prefix_len) && strncmp(cmd_name.data, prefix, prefix_len) == 0)
+                    {
+                        match_count++;
+                        if (!p_first_match)
+                            p_first_match = pCmd;
+                    }
+                }
+                pCmd++;
+            }
+        };
+
+        check_commands(pCommands);
+        check_commands(internal_cmds);
+
+        // If exactly one match -> autocomplete the command name
+        if (match_count == 1 && p_first_match)
+        {
+            CStrView cmd_name = getCmdName(p_first_match->name);
+            uint16_t remaining_len = cmd_name.size - prefix_len;
+
+            if (remaining_len > 0)
+            {
+                // append remaining part of the matched command
+                g_cs.lineBuff.appendLen(cmd_name.data + prefix_len, remaining_len);
+                g_cs.cursorPos += remaining_len;
+                writeStrLen(cmd_name.data + prefix_len, remaining_len);
+            }
+
+            // append space to confirm that the cmd was found
+            g_cs.lineBuff.append(" ");
+            g_cs.cursorPos++;
+            writeStr(" ");
+            flushBuffer();
+            return true;
+        }
+        else if (match_count > 1)
+        {
+            // If multiple matches, display them
+            auto print_cmds = [&](const Cmd *pCmd)
+            {
+                while (pCmd->name)
+                {
+                    if (pCmd->name[0] != '\0')
+                    {
+                        CStrView cmd_name = getCmdName(pCmd->name);
+
+                        if (cmd_name.size >= prefix_len && strncmp(cmd_name.data, prefix, prefix_len) == 0)
+                        {
+                            writeStr(" ");
+                            writeStrLen(cmd_name.data, cmd_name.size);
+                        }
+                    }
+                    pCmd++;
+                }
+            };
+
+            writeStr("... ");
+            print_cmds(pCommands);
+            print_cmds(internal_cmds);
+            prompt();
+            flushBuffer();
+            g_cs.lineBuff.clear();
+            g_cs.cursorPos = 0;
+            return true;
+        }
+    }
+
+    if (help_cmd && prefix_len == 0)
+    {
+        {
+            // add "help" to history
+            int idx = 0;
+            if (g_cs.history.items.find(g_cs.lineBuff, &idx))
+                g_cs.history.items.remove(idx, true);
+            g_cs.history.items.append("help");
+        }
+
+        // prefix is empty, but "help" command was issued -> print all available commands
+        Vector<String> commands;
+        commands.reserve(20);
+
+        const Cmd *p_cmd = pCommands;
+        while (p_cmd->name)
+        {
+            if (p_cmd->name[0] != '\0')
+            {
+                CStrView cmd_name = getCmdName(p_cmd->name);
+                String cmd_name_str;
+                cmd_name_str.appendLen(cmd_name.data, cmd_name.size);
+                commands.append(std::move(cmd_name_str));
+            }
+            p_cmd++;
+        }
+
+        commands.insertionSort([](auto &s1, auto &s2)
+        {
+            return s1 < s2;
+        });
+
+        writeStr("...");
+        for (const auto &s: commands)
+        {
+            writeStr(" ");
+            writeStr(s.cstr());
+        }
+
+        prompt();
+        flushBuffer();
+        g_cs.lineBuff.clear();
+        g_cs.cursorPos = 0;
+        return true;
+    }
+
+    writeStr(ESC_BELL);
+    flushBuffer();
+    return false;
+}
+
 void printHelp(Argv &argv, const Cmd* pCommands)
 {
     const char *pSubCmdHelp = argv.size() > 1 ? argv[1] : nullptr;
@@ -361,13 +523,10 @@ void printHelp(Argv &argv, const Cmd* pCommands)
             if (pSubCmdHelp)
             {
                 // get the command name end in case of 'cmd|alias'
-                const char *name = pCommands->name;
-                const char *ename = strchr(name, '|');
-                if (!ename)
-                    ename = name + strlen(name);
+                CStrView cmd_name = getCmdName(pCommands->name);
 
                 // help for this single command
-                if (strncmp(pSubCmdHelp, name, ename-name) != 0)
+                if (strncmp(pSubCmdHelp, cmd_name.data, cmd_name.size) != 0)
                 {
                     pCommands++;
                     continue;
@@ -487,13 +646,12 @@ const Cmd* findCmdHandler(const Cmd* pCommands, Argv &argv)
             }
 
             // get the command name end in case of 'cmd|alias'
-            const char *ename = strchr(name, '|');
-            if (!ename)
-                ename = name + strlen(name);
+            CStrView cmd_name = getCmdName(name);
+            const char *ename = name + cmd_name.size;
 
             const size_t entered_cmd_len = strlen(entered_cmd_name);
             // avoid matching 'moveee' for 'move' command
-            if ((size_t)(ename - name) == entered_cmd_len)
+            if ((size_t)cmd_name.size == entered_cmd_len)
             {
                 if (strncmp(name, entered_cmd_name, entered_cmd_len) == 0)
                     return pCommands;
@@ -670,7 +828,7 @@ bool checkAndExec(const Cmd* pCommands, bool lastCommandSet)
     return cmd_executed;
 }
 
-bool execLine(const char *cmdline, const Cmd* pCommands)
+bool execLine(const Cmd* pCommands, const char *cmdline)
 {
     assert(cmdline);
     assert(pCommands);
@@ -698,6 +856,18 @@ bool execLine(const char *cmdline, const Cmd* pCommands)
 void setOverrideHandler(CmdHandler handler)
 {
     g_cs.overrideHandler = std::move(handler);
+}
+
+static CStrView getCmdName(const char *name)
+{
+    if (!name)
+        return {};
+
+    const char *ename = strchr(name, '|');
+    if (!ename)
+        ename = name + strlen(name);
+
+    return CStrView{name, static_cast<unsigned>(ename - name)};
 }
 
 // -----------------------------------------------------------------------------

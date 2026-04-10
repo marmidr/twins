@@ -2,6 +2,12 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.28.0 - 2026-04-10
+
+* Added
+  * CLI command autocomplete on TAB
+  * CLI autocomplete on TAB for 'help'
+
 ## 0.27.2 - 2026-04-07
 
 * Changed
