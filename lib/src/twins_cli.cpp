@@ -350,60 +350,26 @@ bool autocompleteCommand(const Cmd *pCommands, const char *prefix)
     if (!prefix || !*prefix)
         return false;
 
-    const uint16_t prefix_len = strlen(prefix);
-    const Cmd* p_first_match = nullptr;
-    uint16_t match_count = 0;
+    const bool help_cmd = strstr(prefix, "help ") == prefix;
 
-    // First pass: count matches and find the first one
-    auto check_commands = [&](const Cmd* pCmd)
+    // skip help invocation and following spaces
+    if (help_cmd)
     {
-        while (pCmd->name)
-        {
-            if (pCmd->name[0] != '\0')
-            {
-                CStrView cmd_name = getCmdName(pCmd->name);
-
-                // check if command starts with prefix
-                if ((cmd_name.size >= prefix_len) && strncmp(cmd_name.data, prefix, prefix_len) == 0)
-                {
-                    match_count++;
-                    if (!p_first_match)
-                        p_first_match = pCmd;
-                }
-            }
-            pCmd++;
-        }
-    };
-
-    constexpr Cmd internal_cmds[] = { Cmd{"help"}, Cmd{"hist"}, Cmd{} };
-    check_commands(pCommands);
-    check_commands(internal_cmds);
-
-    // If exactly one match -> autocomplete the command name
-    if (match_count == 1 && p_first_match)
-    {
-        CStrView cmd_name = getCmdName(p_first_match->name);
-        uint16_t remaining_len = cmd_name.size - prefix_len;
-
-        if (remaining_len > 0)
-        {
-            // append remaining part of the matched command
-            g_cs.lineBuff.appendLen(cmd_name.data + prefix_len, remaining_len);
-            g_cs.cursorPos += remaining_len;
-            writeStrLen(cmd_name.data + prefix_len, remaining_len);
-        }
-
-        // append space to confirm that the cmd was found
-        g_cs.lineBuff.append(" ");
-        g_cs.cursorPos++;
-        writeStr(" ");
-        flushBuffer();
-        return true;
+        prefix += 4;
+        while (*prefix == ' ')
+            prefix++;
     }
-    else if (match_count > 1)
+
+    const uint16_t prefix_len = strlen(prefix);
+
+    if (prefix_len >= 1)
     {
-        // If multiple matches, display them
-        auto print_cmds = [&](const Cmd *pCmd)
+        constexpr Cmd internal_cmds[] = { Cmd{"help"}, Cmd{"hist"}, Cmd{} };
+        const Cmd* p_first_match = nullptr;
+        uint16_t match_count = 0;
+
+        // First pass: count matches and find the first one
+        auto check_commands = [&](const Cmd* pCmd)
         {
             while (pCmd->name)
             {
@@ -411,19 +377,113 @@ bool autocompleteCommand(const Cmd *pCommands, const char *prefix)
                 {
                     CStrView cmd_name = getCmdName(pCmd->name);
 
-                    if (cmd_name.size >= prefix_len && strncmp(cmd_name.data, prefix, prefix_len) == 0)
+                    // check if command starts with prefix
+                    if ((cmd_name.size >= prefix_len) && strncmp(cmd_name.data, prefix, prefix_len) == 0)
                     {
-                        writeStr(" ");
-                        writeStrLen(cmd_name.data, cmd_name.size);
+                        match_count++;
+                        if (!p_first_match)
+                            p_first_match = pCmd;
                     }
                 }
                 pCmd++;
             }
         };
 
-        writeStr("... ");
-        print_cmds(pCommands);
-        print_cmds(internal_cmds);
+        check_commands(pCommands);
+        check_commands(internal_cmds);
+
+        // If exactly one match -> autocomplete the command name
+        if (match_count == 1 && p_first_match)
+        {
+            CStrView cmd_name = getCmdName(p_first_match->name);
+            uint16_t remaining_len = cmd_name.size - prefix_len;
+
+            if (remaining_len > 0)
+            {
+                // append remaining part of the matched command
+                g_cs.lineBuff.appendLen(cmd_name.data + prefix_len, remaining_len);
+                g_cs.cursorPos += remaining_len;
+                writeStrLen(cmd_name.data + prefix_len, remaining_len);
+            }
+
+            // append space to confirm that the cmd was found
+            g_cs.lineBuff.append(" ");
+            g_cs.cursorPos++;
+            writeStr(" ");
+            flushBuffer();
+            return true;
+        }
+        else if (match_count > 1)
+        {
+            // If multiple matches, display them
+            auto print_cmds = [&](const Cmd *pCmd)
+            {
+                while (pCmd->name)
+                {
+                    if (pCmd->name[0] != '\0')
+                    {
+                        CStrView cmd_name = getCmdName(pCmd->name);
+
+                        if (cmd_name.size >= prefix_len && strncmp(cmd_name.data, prefix, prefix_len) == 0)
+                        {
+                            writeStr(" ");
+                            writeStrLen(cmd_name.data, cmd_name.size);
+                        }
+                    }
+                    pCmd++;
+                }
+            };
+
+            writeStr("... ");
+            print_cmds(pCommands);
+            print_cmds(internal_cmds);
+            prompt();
+            flushBuffer();
+            g_cs.lineBuff.clear();
+            g_cs.cursorPos = 0;
+            return true;
+        }
+    }
+
+    if (help_cmd && prefix_len == 0)
+    {
+        {
+            // add "help" to history
+            int idx = 0;
+            if (g_cs.history.items.find(g_cs.lineBuff, &idx))
+                g_cs.history.items.remove(idx, true);
+            g_cs.history.items.append("help");
+        }
+
+        // prefix is empty, but "help" command was issued -> print all available commands
+        Vector<String> commands;
+        commands.reserve(20);
+
+        const Cmd *p_cmd = pCommands;
+        while (p_cmd->name)
+        {
+            if (p_cmd->name[0] != '\0')
+            {
+                CStrView cmd_name = getCmdName(p_cmd->name);
+                String cmd_name_str;
+                cmd_name_str.appendLen(cmd_name.data, cmd_name.size);
+                commands.append(std::move(cmd_name_str));
+            }
+            p_cmd++;
+        }
+
+        commands.insertionSort([](auto &s1, auto &s2)
+        {
+            return s1 < s2;
+        });
+
+        writeStr("...");
+        for (const auto &s: commands)
+        {
+            writeStr(" ");
+            writeStr(s.cstr());
+        }
+
         prompt();
         flushBuffer();
         g_cs.lineBuff.clear();
@@ -431,7 +491,6 @@ bool autocompleteCommand(const Cmd *pCommands, const char *prefix)
         return true;
     }
 
-    // nothing found
     writeStr(ESC_BELL);
     flushBuffer();
     return false;
