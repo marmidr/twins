@@ -131,7 +131,7 @@ public:
         if (!mBuckets.size())
             return false;
 
-        auto hash = H::hash(key);
+        Hash hash = H::hash(key);
         auto bidx = getBucketIdx(hash);
         const auto &bkt = mBuckets[bidx];
 
@@ -148,7 +148,7 @@ public:
         if (!mBuckets.size())
             return;
 
-        auto hash = H::hash(key);
+        Hash hash = H::hash(key);
         auto &bkt = mBuckets[getBucketIdx(hash)];
 
         for (uint16_t i = 0; i < bkt.size(); i++)
@@ -246,7 +246,7 @@ private:
 
     Node& getNode(const K &key)
     {
-        auto hash = H::hash(key);
+        Hash hash = H::hash(key);
         auto bidx = getBucketIdx(hash);
         auto &bkt = mBuckets[bidx];
 
@@ -270,7 +270,7 @@ private:
         {
             for (auto &old_node : old_bkt)
             {
-                auto hash = H::hash(old_node.key);
+                Hash hash = H::hash(old_node.key);
                 auto bidx = getBucketIdx(hash);
                 auto &node = mBuckets[bidx].append();
                 node.hash = hash;

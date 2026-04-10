@@ -19,7 +19,7 @@ TEST(SECURE_PSW, empty)
     EXPECT_FALSE(psw == "");
 }
 
-TEST(SECURE_PSW, valid)
+TEST(SECURE_PSW, short_psw)
 {
     const twins::SecurePassw psw{"my$ecreT"};
 
@@ -31,11 +31,11 @@ TEST(SECURE_PSW, valid)
     EXPECT_TRUE(psw == "my$ecreT");
 }
 
-TEST(SECURE_PSW, too_long)
+TEST(SECURE_PSW, long_psw)
 {
-    constexpr twins::SecurePassw psw{"Pineapple-Does-Not-Belong-On-Pizza-Change-My-Mind"};
-    EXPECT_FALSE(psw.hasPassword());
-    EXPECT_FALSE(psw == "Pineapple-Does-Not-Belong-On-Pizza-Change-My-Mind");
+    constexpr twins::SecurePassw psw("Pineapple-Does-Not-Belong-On-Pizza-Change-My-Mind");
+    EXPECT_TRUE(psw.hasPassword());
+    EXPECT_TRUE(psw == "Pineapple-Does-Not-Belong-On-Pizza-Change-My-Mind");
 }
 
 TEST(SECURE_PSW, compare)

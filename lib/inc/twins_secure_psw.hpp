@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "twins_hash.hpp"
 #include <stdint.h>
 
 // -----------------------------------------------------------------------------
@@ -20,8 +21,6 @@ namespace twins
 class SecurePassw
 {
 public:
-    static constexpr uint16_t PSW_MAX_LEN = 20;
-
     /** @brief Default constructor */
     constexpr SecurePassw() {}
 
@@ -33,17 +32,8 @@ public:
         while (psw[psw_len] != '\0')
             ++psw_len;
 
-        if (psw_len > PSW_MAX_LEN)
-        {
-            // error - provided password is too long
-            return;
-        }
-
         mPswLen = psw_len;
-
-        // store scrambled password
-        for (uint16_t k = 0; k < mPswLen; ++k)
-            mScrambledPsw[permute(k)] = psw[k];
+        mPswHash = HashDefault::hash(psw);
     }
 
     /** @brief Compares given string against the encoded password */
@@ -57,29 +47,14 @@ public:
         if (psw_len == 0 || psw_len != mPswLen)
             return false;
 
-        // compare characters using reverse mapping
-        for (uint16_t k = 0; k < mPswLen; ++k)
-        {
-            uint8_t pos = permute(k);
-            if (mScrambledPsw[pos] != psw[k])
-                return false;
-        }
-
-        return true;
+        // compare hash values
+        return mPswHash == HashDefault::hash(psw);
     }
 
     /** @brief If valid, compares own and \p other's encoded passwords */
     bool operator==(const SecurePassw& other) const
     {
-        if ((mPswLen == 0) || (mPswLen != other.mPswLen))
-            return false;
-
-        // compare entire buffers
-        for (uint16_t k = 0; k < sizeof(mScrambledPsw); ++k)
-            if (mScrambledPsw[k] != other.mScrambledPsw[k])
-                return false;
-
-        return true;
+        return (mPswLen > 0) && (mPswLen == other.mPswLen) && (mPswHash == other.mPswHash);
     }
 
     /** @brief Check if object contains a password */
@@ -87,14 +62,7 @@ public:
 
 private:
     uint16_t mPswLen{};
-    char     mScrambledPsw[PSW_MAX_LEN]{};
-
-    // simple constexpr pseudo-random permutation generator
-    static constexpr uint8_t permute(uint8_t i)
-    {
-        // cheap reversible mixing function
-        return (i * 17 + 23) % PSW_MAX_LEN;
-    }
+    uint32_t mPswHash{};
 };
 
 // -----------------------------------------------------------------------------

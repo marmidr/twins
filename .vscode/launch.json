@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}\\build-vscode\\bin\\TWinsUT.exe",
             // "args": [],
             // "args": ["--gtest_filter=VECTOR*"],
-            "args": ["--gtest_filter=CLI*"],
+            "args": ["--gtest_filter=SECURE_PSW*"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
