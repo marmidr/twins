@@ -25,6 +25,8 @@
 #if TWINS_ENV_LINUX_LIKE
 # include <time.h>
 # include <unistd.h>
+#else
+# define malloc_usable_size(x)  0
 #endif
 
 // -----------------------------------------------------------------------------

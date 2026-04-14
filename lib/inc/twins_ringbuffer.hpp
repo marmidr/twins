@@ -88,7 +88,9 @@ public:
      */
     bool write(T data)
     {
-        assert(mpBuff);
+        if (!mpBuff || mCapacity == 0)
+            return false;
+
         if (isFull())
             return false;
 
@@ -106,6 +108,8 @@ public:
     bool write(const T *data, uint16_t dataSize)
     {
         assert(mpBuff);
+        if (!data || dataSize == 0)
+            return false;
         if (mSize + dataSize > mCapacity)
             return false;
 

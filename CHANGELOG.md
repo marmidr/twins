@@ -2,6 +2,13 @@
 
 See the [keepachangelog.com description](https://keepachangelog.com/en/1.0.0/).
 
+## 0.28.1 - 2026-04-14
+
+* Changed
+  * POSIX input code moved from library to Demo
+* Fixed
+  * Vulnerability fixes (mostly malloc-related)
+
 ## 0.28.0 - 2026-04-10
 
 * Added

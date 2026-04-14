@@ -45,12 +45,14 @@ String& String::append(const char *s, int16_t repeat)
         return *this;
 
     unsigned sl = strlen(s);
-    reserve(mSize + repeat * sl);
-    char *p = mpBuff + mSize;
-    mSize += repeat * sl;
-    while (repeat--)
-        p = strcat(p, s);
-    mpBuff[mSize] = '\0';
+    if (reserve(mSize + repeat * sl))
+    {
+        char *p = mpBuff + mSize;
+        mSize += repeat * sl;
+        while (repeat--)
+            p = strcat(p, s);
+        mpBuff[mSize] = '\0';
+    }
     return *this;
 }
 
@@ -59,28 +61,35 @@ String& String::appendLen(const char *s, int16_t sLen)
     if (sLen <= 0 || !s || sourceIsOurs(s))
         return *this;
 
-    reserve(mSize + sLen);
-    strncat(mpBuff + mSize, s, sLen);
-    mSize += sLen;
-    mpBuff[mSize] = '\0';
+    if (reserve(mSize + sLen))
+    {
+        strncat(mpBuff + mSize, s, sLen);
+        mSize += sLen;
+        mpBuff[mSize] = '\0';
+    }
     return *this;
 }
 
 String& String::append(char c, int16_t repeat)
 {
-    if (repeat <= 0) return *this;
-    reserve(mSize + repeat);
-    char *p = mpBuff + mSize;
-    mSize += repeat;
-    while (repeat--)
-        *p++ = c;
-    mpBuff[mSize] = '\0';
+    if (repeat <= 0)
+        return *this;
+
+    if (reserve(mSize + repeat))
+    {
+        char *p = mpBuff + mSize;
+        mSize += repeat;
+        while (repeat--)
+            *p++ = c;
+        mpBuff[mSize] = '\0';
+    }
     return *this;
 }
 
 String& String::appendFmt(const char *fmt, ...)
 {
-    if (!fmt) return *this;
+    if (!fmt)
+        return *this;
 
     va_list ap;
     va_start(ap, fmt);
@@ -93,12 +102,13 @@ void String::appendVFmt(const char *fmt, va_list ap)
 {
     // https://en.cppreference.com/w/cpp/io/c/fprintf
     uint8_t retry = 1;
+    const uint16_t MAX_STRING_SIZE = 16384;
 
     do
     {
         va_list ap_copy;
         va_copy(ap_copy, ap);
-        int freespace = mCapacity - mSize;
+        int freespace = (int)mCapacity - mSize;
         int n = vsnprintf(mpBuff + mSize, freespace, fmt, ap_copy);
 
         if (n > 0)
@@ -109,6 +119,9 @@ void String::appendVFmt(const char *fmt, va_list ap)
                 mSize += n;
                 break;
             }
+
+            if (mCapacity + n + 10 > MAX_STRING_SIZE)
+                return;  // Failed, string too large
 
             // printf("too small buffer\n");
             reserve(mCapacity + n + 10);
@@ -289,15 +302,17 @@ String& String::insert(int16_t pos, const char *s, int16_t repeat)
     unsigned src_len = strlen(s);
     unsigned bytes_to_insert = src_len * repeat;
 
-    reserve(mSize + bytes_to_insert);
-    memmove(insert_at + bytes_to_insert, insert_at, mSize - (insert_at - mpBuff));
-    while (repeat--)
+    if (reserve(mSize + bytes_to_insert))
     {
-        memmove(insert_at, s, src_len);
-        insert_at += src_len;
+        memmove(insert_at + bytes_to_insert, insert_at, mSize - (insert_at - mpBuff));
+        while (repeat--)
+        {
+            memmove(insert_at, s, src_len);
+            insert_at += src_len;
+        }
+        mSize += bytes_to_insert;
+        mpBuff[mSize] = '\0';
     }
-    mSize += bytes_to_insert;
-    mpBuff[mSize] = '\0';
     return *this;
 }
 
@@ -430,37 +445,46 @@ uint16_t String::alignCapacity(uint16_t newCapacity) const
     return newCapacity;
 }
 
-void String::reserve(uint16_t newCapacity)
+bool String::reserve(uint16_t newCapacity)
 {
     newCapacity = alignCapacity(newCapacity);
 
     if (newCapacity < mCapacity)
-        return;
+        return true;
 
     if (!mpBuff)
     {
         // first-time buffer allocation
         mpBuff = (char*)pPAL->memAlloc(newCapacity);
+        if (mpBuff == nullptr)
+            return false;
+
         mCapacity = newCapacity;
         *mpBuff = '\0';
         mSize = 0;
-        return;
+        return true;
     }
 
     if (newCapacity > mCapacity)
     {
         // reallocation needed
         char *pnew = (char*)pPAL->memAlloc(newCapacity);
+        if (pnew == nullptr)
+            return false;
+
         mCapacity = newCapacity;
         memcpy(pnew, mpBuff, mSize+1);
         pPAL->memFree(mpBuff);
         mpBuff = pnew;
     }
+
+    return true;
 }
 
 void String::freeBuff()
 {
-    if (mpBuff) pPAL->memFree(mpBuff);
+    if (mpBuff)
+        pPAL->memFree(mpBuff);
     mpBuff = nullptr;
     mCapacity = 0;
     mSize = 0;

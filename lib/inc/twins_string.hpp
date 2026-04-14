@@ -65,7 +65,7 @@ public:
     /** @brief Return C-style string buffer */
     inline const char* cstr() const { return mpBuff ? mpBuff : ""; }
     /** @brief Reserve buffer if u know the string size in advance */
-    void reserve(uint16_t newCapacity);
+    bool reserve(uint16_t newCapacity);
     /** @brief Useful tests */
     bool startsWith(const char *str) const;
     bool endsWith(const char *str) const;

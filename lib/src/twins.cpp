@@ -37,7 +37,8 @@ struct StubPAL : twins::IPal
     void flushBuff() override {}
     void setLogging(bool) override {}
     void promptPrinted() override {}
-    //
+    // the function below intentionally asserts, because the StubPAL should never be used
+    // for memory management, and if it is, it's a bug that should be fixed.
     void* memAlloc(uint32_t) override { assert(!"PAL not set"); return nullptr; }
     void memFree(void *) override {}
     //

@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/lib/**"
+            ],
+            "compileCommands": [ "${workspaceFolder}/build-vscode/compile_commands.json" ]
+        }
+    ],
+    "version": 4
+}

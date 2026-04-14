@@ -1,3 +1,5 @@
 {
-    "cmake.cmakePath": "c:\\msys64\\usr\\bin\\cmake.exe"
+    "cmake.cmakePath": "c:\\msys64\\mingw64\\bin\\cmake.exe",
+    "C_Cpp.default.compilerPath": "c:\\msys64\\mingw64\\bin\\g++.exe",
+    "terminal.integrated.defaultProfile.windows": "MSys2-MSys"
 }

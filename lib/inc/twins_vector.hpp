@@ -33,7 +33,13 @@ public:
     {
     public:
         Iter(void) = delete;
-        Iter(Vector<T> &vec, uint16_t idx  = 0) { mPtr = vec.data() + idx; }
+
+        Iter(Vector<T> &vec, uint16_t idx  = 0)
+        {
+            idx = MIN(idx, vec.size());
+            mPtr = vec.data() + idx;
+            mEPtr = vec.data() + vec.size();
+        }
 
         bool operator == (const Iter &other) const { return mPtr == other.mPtr; }
         bool operator != (const Iter &other) const { return mPtr != other.mPtr; }
@@ -43,7 +49,8 @@ public:
         // ++it
         Iter& operator ++(void)
         {
-            mPtr++;
+            if (mPtr < mEPtr)
+                mPtr++;
             return *this;
         }
 
@@ -56,6 +63,7 @@ public:
         // }
     private:
         T* mPtr;
+        T* mEPtr;
     };
 
     class ConstIter
@@ -90,7 +98,7 @@ public:
 public:
     Vector() = default;
 
-    /** @brief Constructor with initial size */
+    /** @brief Constructor with initial size; elements are default-initialized */
     Vector(uint16_t itemsCount)
     {
         resize(itemsCount);
@@ -136,9 +144,11 @@ public:
             return *this;
 
         clear();
-        reserve(other.size());
-        mSize = other.size();
-        copyContent(mpItems, other.mpItems, mSize);
+        if (reserve(other.size()))
+        {
+            mSize = other.size();
+            copyContent(mpItems, other.mpItems, mSize);
+        }
         return *this;
     }
 
@@ -171,12 +181,16 @@ public:
     T & operator [] (int idx)
     {
         assert(idx >= 0 && idx < mSize);
+        if (!(idx >= 0 && idx < mSize))
+            __builtin_trap();  // Hard crash, not assert
         return mpItems[idx];
     }
 
     const T & operator [] (int idx) const
     {
         assert(idx >= 0 && idx < mSize);
+        if (!(idx >= 0 && idx < mSize))
+            __builtin_trap();  // Hard crash, not assert
         return mpItems[idx];
     }
 
@@ -207,17 +221,21 @@ public:
     uint16_t capacity(void) const { return mCapacity; }
 
     /** @brief Reserve capacity (higher than current) to avoid memory reallocations */
-    void reserve(uint16_t newCapacity)
+    bool reserve(uint16_t newCapacity)
     {
         if (newCapacity <= mCapacity)
-            return;
+            return true;
 
-        auto* p_new_items = (T*)pPAL->memAlloc(newCapacity * sizeof(T));
+        auto* p_new_items = (T*)pPAL->memAlloc(uint32_t(newCapacity) * sizeof(T));
+        if (p_new_items == nullptr)
+            return false;
+
         moveContent(p_new_items, mpItems, mSize);
         initContent(p_new_items + mSize, newCapacity - mSize);
         pPAL->memFree(mpItems);
         mpItems = p_new_items;
         mCapacity = newCapacity;
+        return true;
     }
 
     /** @brief Set new size (smaller or bigger); new items will be initialized */
@@ -239,6 +257,9 @@ public:
 
         uint16_t to_move = MIN(mSize, newSize);
         auto* p_new_items = (T*)pPAL->memAlloc(newSize * sizeof(T));
+        if (p_new_items == nullptr)
+            return;
+
         moveContent(p_new_items, mpItems, to_move);
         initContent(p_new_items + to_move, newSize - to_move);
         // if new size is smaller than old, not all entries was moved
@@ -263,6 +284,9 @@ public:
         uint16_t new_capacity = mSize;
 
         auto* p_new_items = (T*)pPAL->memAlloc(new_capacity * sizeof(T));
+        if (p_new_items == nullptr)
+            return;
+
         moveContent(p_new_items, mpItems, mSize);
 
         destroyContent();
@@ -336,12 +360,13 @@ public:
     template<typename Tv>
     void append(Vector<Tv> &&items)
     {
-        reserve(mSize + items.size());
-
-        for (uint16_t i = 0; i < items.size(); i++)
+        if (reserve(mSize + items.size())) // reserve before move, to avoid invalidating items
         {
-            auto &src = items[i];
-            mpItems[mSize++] = std::move(src);
+            for (uint16_t i = 0; i < items.size(); i++)
+            {
+                auto &src = items[i];
+                mpItems[mSize++] = std::move(src);
+            }
         }
     }
 
@@ -482,6 +507,7 @@ protected:
             pItems[i].~T();
     }
 
+    // private function; buffer is always big enough to copy all items
     template<typename Tv>
     void copyContent(T *pDst, const Tv *pSrc, uint16_t count)
     {
@@ -489,6 +515,7 @@ protected:
             pDst[i] = pSrc[i];
     }
 
+    // private function; buffer is always big enough to move all items
     void moveContent(T *pDst, T *pSrc, uint16_t count)
     {
         for (uint16_t i = 0; i < count; i++)
